@@ -1,0 +1,1 @@
+# plugins-gallery-with-thumbnail-slider
