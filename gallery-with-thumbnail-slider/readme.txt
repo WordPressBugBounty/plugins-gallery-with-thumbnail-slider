@@ -4,9 +4,9 @@ Contributors: galaxyweblinks
 Donate link: https://www.galaxyweblinks.com
 Tags: gallery, slider, thumbnail, vertical slider 
 Requires at least: WordPress 4.0 or higher
-Tested up to: 6.5.3
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 7.1
+Stable tag: 7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,10 @@ You have a host of functionalities to choose from:
 	* Add unlimited images in a slider
 	* Pause interval timer 
 	* Slide autoplay and much more.
+
+Here’s a link to the demo and documentation for the plugin. This will help you learn more about its features and how to use it.
+<strong>[Demo](https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/demo)</strong> | <strong>[Documentation](https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/doc/)</strong>
+For any feedback or queries regarding this plugin, please contact our [Support team](https://wp-plugins.galaxyweblinks.com/contact/).
 
 == Installation ==
 
@@ -89,6 +93,9 @@ We can manage thumb items and vertical size in different breakpoints for respons
 
 
 == Changelog ==
+
+= 7.2 =
+– Stable Release
 
 = 7.1 – 2024-05-24 =
 – Fixed the thumbnails issue.
@@ -154,6 +161,9 @@ Release with lightbox gallery option
 First Stable Release
 
 == Upgrade Notice ==
+
+= 7.2 =
+– Stable Release
 
 = 6.8 – 2023-07-06 =
 – Fixed fade effect in vertical slider layout

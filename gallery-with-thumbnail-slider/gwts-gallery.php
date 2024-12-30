@@ -4,7 +4,7 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 7.1
+* Version: 7.2
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
 */
@@ -169,7 +169,21 @@ function gwts_gwl_gallery_option_fuction(){
 	
 	$lboxdownload = get_option('gwts_gwl_lightbx_download');
 ?>
+<div class="wrap">
+
 <h3><?php esc_html_e( 'Slider Global Settings', 'gallery-with-thumbnail-slider' ); ?></h3>
+
+<div class="notice gwlts--notice">
+	<div>
+		<h3><?php esc_html_e( 'Gallery With Thumbnail Slider', 'gallery-with-thumbnail-slider' ); ?></h3>
+		<p>Here's a link to the demo and documentation for the plugin. This will help you learn more about its features and how to use it.</p>
+		<div class="e-notice__actions">
+			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/demo/" class="e-button--cta" target="_blank"><span>Demo</span></a>
+			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/doc/" class="e-button--cta cta-secondary" target="_blank"><span>Documentation</span></a>
+		</div>
+		<p class="e-note">For any feedback or queries regarding this plugin, please contact our <a href="https://wp-plugins.galaxyweblinks.com/contact/" target="_blank">Support team</a>.</p>
+	</div>
+</div>
 
 <form method="POST" action="options.php">
 	<?php settings_fields( 'gwlts-gwl-gallery-settings-group' ); ?>
@@ -342,6 +356,7 @@ jQuery(document).ready(function(){
 });
 </script>
 
+</div>
 <?php }
 
 /* Register jquery for sorting items in gallery */
@@ -369,3 +384,19 @@ function gwts_gwl_frontend_enqueue_script(){
 	wp_enqueue_script( 'gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL.'includes/js/gwts.zoom.min.js', array('jquery') );
 }
 add_action('wp_enqueue_scripts','gwts_gwl_frontend_enqueue_script');
+
+/**
+ * You can use these filters to add custom links to your plugin row in the plugin list.
+ * @param $links, $file
+ * @return $links [array]
+ */
+function gwts_gwl_addcustom_plugin_links($links, $file)
+{
+	if ($file === 'gallery-with-thumbnail-slider/gwts-gallery.php') {
+		$links[] = '<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/doc/" target="_blank">Documentation</a>';
+		$links[] = '<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/demo/" target="_blank">View Demo</a>';
+		$links[] = '<a href="https://wp-plugins.galaxyweblinks.com/contact/" target="_blank">Contact Support</a>';
+	}
+	return $links;
+}
+add_filter('plugin_row_meta', 'gwts_gwl_addcustom_plugin_links', 10, 2);
