@@ -4,7 +4,7 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 7.2
+* Version: 7.3
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
 */

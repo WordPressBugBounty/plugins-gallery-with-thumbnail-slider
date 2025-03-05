@@ -103,6 +103,18 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 				.lSSlideOuter .lSSlideWrapper ul li img{
 				  width: 100%;
 				}
+				.lightSlider li.lslide p {
+                 position: absolute;
+                 bottom: 0;color: #fff;
+                 padding: 10px;
+                 background: rgb(0 0 0 / 39%);
+                 width: 100%;
+				 text-align: center;
+				 font-size:20px;
+                }
+                .lightSlider li.lslide {
+                   position: relative;
+                }
 			</style>
 
 			<?php if(null !== $simagezoom && !empty($simagezoom)){ ?>

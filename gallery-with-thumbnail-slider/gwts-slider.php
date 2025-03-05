@@ -69,19 +69,38 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden" data-litebx="<?php if(!empty($lboxswitchr)){echo $lboxswitchr;}else{echo "false";}?>">
 						   	
 						   	<?php
+							   $scaption = get_option('gwts_gwl_enable_caption');
 							 	foreach ($getimag as $imgvalue) {
 
 							 		$attchimg = wp_get_attachment_image_src($imgvalue,'full');
 							 		$thumbnailimg = wp_get_attachment_image_src($imgvalue, $thumbsize);
 							 		$image_alt = get_post_meta($imgvalue, '_wp_attachment_image_alt', true);
+									 $image_cap = get_post($imgvalue)->post_excerpt;
 								?>
 							 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>"> 
-				            <img src="<?php echo esc_attr($attchimg[0]); ?>" alt="<?php echo esc_attr($image_alt);?>"/>
-				          </li>
+				                      <img src="<?php echo esc_attr($attchimg[0]); ?>" alt="<?php echo esc_attr($image_alt);?>"/>
+				                      <?php if($scaption == 'true' && !empty($image_cap)): ?>
+										<p><?php echo esc_html($image_cap);?></p>
+									  <?php endif; ?>
+									</li>
 							 	<?php } ?>
 							</ul>
 						</div>
-					</div>				
+					</div>
+					<style>
+						.lightSlider li.lslide p {
+                 position: absolute;
+                 bottom: 0;color: #fff;
+                 padding: 10px;
+                 background: rgb(0 0 0 / 39%);
+                 width: 100%;
+				 text-align: center;
+				 font-size:20px;
+                }
+                .lightSlider li.lslide {
+                   position: relative;
+                }
+					</style>				
 					<?php 
 						$gallitms = get_option('gwts_gwl_gallery_numberof_items');
 						if(!empty($gallitms)){
