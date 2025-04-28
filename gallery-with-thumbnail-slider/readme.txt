@@ -4,9 +4,9 @@ Contributors: galaxyweblinks
 Donate link: https://www.galaxyweblinks.com
 Tags: gallery, slider, thumbnail, vertical slider 
 Requires at least: WordPress 4.0 or higher
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 7.3
+Stable tag: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ We can manage thumb items and vertical size in different breakpoints for respons
 
 
 == Changelog ==
+
+= 7.4 =
+– Stable Release
+
 = 7.3 =
 – Add Caption To Thumbnails
 
@@ -163,6 +167,10 @@ Release with lightbox gallery option
 First Stable Release
 
 == Upgrade Notice ==
+
+= 7.4 =
+– Stable Release
+
 = 7.3 =
 – Add Caption To Thumbnails
 
