@@ -17,13 +17,13 @@ function gwts_gwl_gallery_posttype(){
 		'not_found'	=>	__('No galleries found','gallery-with-thumbnail-slider'),
 		'not_found_in_trash'	=>	__('No galleries found in trash','gallery-with-thumbnail-slider')),
 		'description'        => __( 'Description.', 'gallery-with-thumbnail-slider' ),
-		'public'             => true,
-		'publicly_queryable' => true,
+		'public'             => false,
+		'publicly_queryable' => false,
 		'show_ui'            => true,
-		'query_var'          => true,
-		'rewrite'            => array( 'slug' => 'gwts-gallery' ),
+		'query_var'          => false,
+		'rewrite'            => false,
 		'capability_type'    => 'post',
-		'has_archive'        => true,
+		'has_archive'        => false,
 		'hierarchical'       => false,
 		'menu_position'      => null,
 		'show_in_menu'=>'edit.php?post_type=gwts-gallery',		
@@ -44,6 +44,27 @@ add_filter('manage_gwts-gallery_posts_columns' , 'gwts_gwl_add_gallery_columns')
 add_action( 'manage_gwts-gallery_posts_custom_column' , 'gwts_gwl_custom_gallery_column', 10, 2 );
 function gwts_gwl_custom_gallery_column($column, $post_id){
 	if($column == 'shortcode'){
-		echo "[gwts_gwl_gallery_slider id=".$post_id."]";
+		echo "[gwts_gwl_gallery_slider id=" . esc_html($post_id) . "]";
 	}
 }
+
+/* Remove view link from gwts-gallery post type admin list */
+function gwts_remove_view_link_from_gallery_posts($actions, $post) {
+    if ($post->post_type == 'gwts-gallery') {
+        unset($actions['view']);
+    }
+    return $actions;
+}
+add_filter('post_row_actions', 'gwts_remove_view_link_from_gallery_posts', 10, 2);
+
+/* Disable permalink section in edit posts for gwts-gallery */
+function gwts_disable_permalink_for_gallery_posts() {
+    global $post_type;
+    if ($post_type == 'gwts-gallery') {
+        echo '<style>
+            #edit-slug-box { display: none !important; }
+            .post-type-gwts-gallery #edit-slug-box { display: none !important; }
+        </style>';
+    }
+}
+add_action('admin_head', 'gwts_disable_permalink_for_gallery_posts');

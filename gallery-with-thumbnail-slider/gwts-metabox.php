@@ -57,7 +57,7 @@ function gwts_gwl_gallery_display_callback( $post ) {
 	<?php } } ?>
 	</div>
 	<hr>
-	<div class="showshrotcode"><h4><?php esc_html_e('Use this shortcode to display gallery slider.', 'gallery-with-thumbnail-slider'); ?></h4>[gwts_gwl_gallery_slider id="<?php echo $post->ID; ?>"]</div>
+	<div class="showshrotcode"><h4><?php esc_html_e('Use this shortcode to display gallery slider.', 'gallery-with-thumbnail-slider'); ?></h4>[gwts_gwl_gallery_slider id="<?php echo esc_html($post->ID, 'gallery-with-thumbnail-slider'); ?>"]</div>
 	<?php if($getpostyp != 'gwts-gallery'){ ?>
 		<div class="switchslider">
 			<h4>
@@ -82,29 +82,37 @@ function gwts_gwl_gallery_display_callback( $post ) {
  
 /* Save meta box content. */
 function gwts_gwl_gallery_save_meta_box( $post_id ) {
-  if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
-  /* if our current user can't edit this post */
-  if( !current_user_can( 'edit_posts' ) ) return;
-  /* if our nonce isn't there, or we can't verify it */
-  if(!isset($_REQUEST['gwts_gwl_gallery_nounce_field']) || ! wp_verify_nonce( $_REQUEST['gwts_gwl_gallery_nounce_field'], 'gwts_gwl_gallery_nounce')){
-  	return;
-  }
-  else{
-  	if(isset($_REQUEST['_gwts_gallery_title'])){
-    	update_post_meta($post_id,'_gwts_gallery_title', sanitize_text_field($_REQUEST['_gwts_gallery_title']));
-    }
-    if(isset($_REQUEST['_gwts_gallery_desc'])){
-    	update_post_meta($post_id,'_gwts_gallery_desc', sanitize_textarea_field($_REQUEST['_gwts_gallery_desc']));
-    }
-    if(isset($_REQUEST['_gwts_gwl_attachment_id'])){
-    	if(!empty($_REQUEST['_gwts_gwl_attachment_id'])){
-    	update_post_meta($post_id, '_gwts_gwl_attachment_id', rest_sanitize_array($_REQUEST['_gwts_gwl_attachment_id']));	    	
-    	}	    	
-    }
-    else{
-  		update_post_meta($post_id, '_gwts_gwl_attachment_id', '');
-  	}
-  } 
-	update_post_meta($post_id,'gwts_gwl_switcher', sanitize_text_field($_REQUEST['gwts_gwl_switcher']));
+  	if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+  	/* if our current user can't edit this post */
+  	if( !current_user_can( 'edit_posts' ) ) return;
+  	/* if our nonce isn't there, or we can't verify it */
+
+	$nonce_value = isset($_POST['gwts_gwl_gallery_nounce_field']) ? sanitize_text_field( wp_unslash($_POST['gwts_gwl_gallery_nounce_field']) ) : '';
+	if (!wp_verify_nonce($nonce_value, 'gwts_gwl_gallery_nounce')) {
+		return;
+	}else{
+
+		if(isset($_REQUEST['_gwts_gallery_title'])){
+			update_post_meta($post_id,'_gwts_gallery_title', sanitize_text_field( wp_unslash($_REQUEST['_gwts_gallery_title']) ));
+		}
+		if(isset($_REQUEST['_gwts_gallery_desc'])){
+			update_post_meta($post_id,'_gwts_gallery_desc', sanitize_textarea_field( wp_unslash($_REQUEST['_gwts_gallery_desc']) ));
+		}
+
+		if(isset($_REQUEST['_gwts_gwl_attachment_id']) && !empty($_REQUEST['_gwts_gwl_attachment_id'])){
+			if(is_array($_REQUEST['_gwts_gwl_attachment_id'])){
+				$sanitized_array = array_map('sanitize_text_field', wp_unslash($_REQUEST['_gwts_gwl_attachment_id']));
+				update_post_meta($post_id, '_gwts_gwl_attachment_id', $sanitized_array);
+			}
+		}else{
+			update_post_meta($post_id, '_gwts_gwl_attachment_id', '');
+		}
+    
+  	} 
+  	
+	if( isset($_REQUEST['gwts_gwl_switcher']) && !empty($_REQUEST['gwts_gwl_switcher']) ){
+		update_post_meta($post_id,'gwts_gwl_switcher', sanitize_text_field( wp_unslash($_REQUEST['gwts_gwl_switcher']) ));
+	}	
+	
 }
 add_action( 'save_post', 'gwts_gwl_gallery_save_meta_box' );

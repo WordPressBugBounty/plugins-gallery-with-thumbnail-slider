@@ -11,11 +11,20 @@ p.gwts-settings-opts input, p.gwts-settings-opts select {
 .gwt-gwlgalleryimg {
   display: inline-block;
   padding: 10px;
-  width: 30%;
+  width: 220px;
+  text-align: center;
+  vertical-align: top;
 }
 .gwt-gwlgalleryimg > img {
-  height: auto;
-  max-width: 100%;
+  height: 200px;
+  width: 200px;
+  min-width: 200px;
+  min-height: 200px;
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ddd;
 }
 .gwt-gwlgallery > label {
   float: left;
@@ -26,6 +35,29 @@ p.gwts-settings-opts input, p.gwts-settings-opts select {
 }
 #gwts-gwl-sortableitem .gwt-gwlgalleryimg img {
   cursor: grab;
+}
+
+/* Additional styling for consistent gallery image layout */
+.gwt-gwlgalleryimg .gwts-gwl-image-delete {
+  margin-top: 8px;
+  width: 100%;
+  padding: 5px;
+  background-color: #dc3232;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.gwt-gwlgalleryimg .gwts-gwl-image-delete:hover {
+  background-color: #a00;
+}
+
+#gwts-gwl-sortableitem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 /*Switch ON*/

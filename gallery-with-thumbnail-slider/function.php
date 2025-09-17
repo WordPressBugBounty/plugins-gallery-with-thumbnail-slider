@@ -7,7 +7,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 	$outputgal = '';
 	if(!empty($postid)){
 
-	 	$getimag 				= get_post_meta($postid,'_gwts_gwl_attachment_id', true);
+		$getimag 				= get_post_meta($postid,'_gwts_gwl_attachment_id', true);
 	 	$getttl 				= get_post_meta($postid,'_gwts_gallery_title', true);
 	 	$getdescription = get_post_meta($postid,'_gwts_gallery_desc', true);
 
@@ -49,15 +49,17 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 				<?php } ?>
 			</div>
 			<?php } 
+
 				if(null !== $getverticalgal && !empty($getverticalgal)){
 					if( null!== $getverticalopt){
-				    $VssliderRange = $getverticalopt;
-				    $smaxwidth = $VssliderRange;
+						$VssliderRange = $getverticalopt;
+						$smaxwidth = !empty($VssliderRange[0]) ? $VssliderRange[0] : '1100'; 
 					}
 				}
 				else{
 					$smaxwidth = get_option('gwts_gwl_sliderwidth');
 				}
+
 				$thumbsize = get_option('gwts_gwl_slider_thumb_size');
 				if (!empty($thumbsize)) {
 					$thumbsize = get_option('gwts_gwl_slider_thumb_size');
@@ -66,10 +68,10 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 				}
 			?>
 
-		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php esc_html_e($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo $sliderPadding; ?>;">            
-	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php esc_html_e($smaxwidth, 'gallery-with-thumbnail-slider'); ?>px;"<?php } ?>>
+		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_html($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_html($sliderPadding, 'gallery-with-thumbnail-slider'); ?>;">            
+	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php echo esc_html($smaxwidth, 'gallery-with-thumbnail-slider'); ?>px;"<?php } ?>>
 
-	        <ul id="gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
+	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
 				    <?php
 					$scaption = get_option('gwts_gwl_enable_caption');
 						foreach ($getimag as $imgvalue) {
@@ -80,7 +82,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					 		$image_cap = get_post($imgvalue)->post_excerpt;
 					 	?>
 
-					 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>" class="<?php if(!empty($simagezoom)){ esc_html_e('zoom', 'gallery-with-thumbnail-slider'); }?>"> 
+					 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>" class="<?php if(!empty($simagezoom)){ echo esc_attr('zoom'); }?>"> 
               	<img src="<?php echo esc_url($attchimg[0]); ?>" alt="<?php echo esc_attr($image_alt);?>" />
               		<?php if($scaption == 'true' && !empty($image_cap)): ?>
               			<p><?php echo esc_html($image_cap);?></p>
@@ -99,9 +101,26 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 			</style>
 			<?php } ?>
 
+			<?php 
+			$slide_item = get_option('gwts_gwl_gallery_numberof_items');
+			if(!empty($slide_item)){
+				$slide_item = $slide_item;
+			}
+			else{
+				$slide_item = 1;
+			}
+
+			?>
 			<style type="text/css">
 				.lSSlideOuter .lSSlideWrapper ul li img{
-				  width: 100%;
+				  	width: 100%;
+					<?php if($slide_item == 1 && !$getverticalgal){ ?>
+				  	height: 400px;
+					min-height: 300px;
+					max-height: 500px;
+					object-fit: cover;
+					object-position: center;
+					<?php } ?>
 				}
 				.lightSlider li.lslide p {
                  position: absolute;
@@ -243,35 +262,40 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					<?php 
 					}
 					?>
+
+	<style>
+		
+	</style>
+
 				<script>
 					jQuery(document).ready(function() {
-						var setting_download = '<?php echo $lboxdownload; ?>';
+						var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
             var count  = 0
               if (count === 1) return;
-              jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('cS-hidden');
-                jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').lightSlider({
+              jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('cS-hidden');
+                jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').lightSlider({
                   gallery:true,
 				  <?php if($seffect == 'fade'): ?>
-					mode: '<?php esc_html_e($seffect, 'gallery-with-thumbnail-slider'); ?>',
+					mode: '<?php echo esc_attr($seffect, 'gallery-with-thumbnail-slider'); ?>',
 				   <?php endif; ?>	                        
-	              speed:<?php esc_html_e($sliderspd, 'gallery-with-thumbnail-slider');?>,
-                  auto:<?php esc_html_e($smode, 'gallery-with-thumbnail-slider');?>,
+	              speed:<?php echo esc_attr($sliderspd, 'gallery-with-thumbnail-slider');?>,
+                  auto:<?php echo esc_attr($smode, 'gallery-with-thumbnail-slider');?>,
                   item: 1,
-							    loop: <?php esc_html_e($sloop, 'gallery-with-thumbnail-slider');?>,
-							    thumbItem: <?php esc_html_e($maxThumbItm, 'gallery-with-thumbnail-slider'); ?>,
+							    loop: <?php echo esc_attr($sloop, 'gallery-with-thumbnail-slider');?>,
+							    thumbItem: <?php echo esc_attr($maxThumbItm, 'gallery-with-thumbnail-slider'); ?>,
 							    vertical: true,
-							    verticalHeight:<?php esc_html_e($sliderHeight, 'gallery-with-thumbnail-slider'); ?>,
-							    vThumbWidth:<?php esc_html_e($thumbnlWidth, 'gallery-with-thumbnail-slider'); ?>,
+							    verticalHeight:<?php echo esc_attr($sliderHeight, 'gallery-with-thumbnail-slider'); ?>,
+							    vThumbWidth:<?php echo esc_attr($thumbnlWidth, 'gallery-with-thumbnail-slider'); ?>,
 							    thumbMargin:4,
-							    controls:<?php esc_html_e($contrlNav, 'gallery-with-thumbnail-slider'); ?>,//navigation
+							    controls:<?php echo esc_attr($contrlNav, 'gallery-with-thumbnail-slider'); ?>,//navigation
 							    responsive : [
 			            {
 		                breakpoint:800,
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php esc_html_e($vheight800, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php esc_html_e($vthumb800, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight800, 'gallery-with-thumbnail-slider'); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb800, 'gallery-with-thumbnail-slider'); ?>,
 	                  }
 			            },
 			            {
@@ -279,8 +303,8 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php esc_html_e($vheight641, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php esc_html_e($vthumb641, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight641, 'gallery-with-thumbnail-slider'); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb641, 'gallery-with-thumbnail-slider'); ?>,
 	                  }
 			            },
 			            {
@@ -288,19 +312,19 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php esc_html_e($vheight480, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php esc_html_e($vthumb480, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight480, 'gallery-with-thumbnail-slider'); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb480, 'gallery-with-thumbnail-slider'); ?>,
 	                  }
 			            },						           
 			        	],
 
                 onSliderLoad: function(obj) {
-                	jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
-	                var lithbox = jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
+                	jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
+	                var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
 					if(lithbox=='true'){
 						obj.lightGallery({
 							download: setting_download,
-							selector: '#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?> .lslide'
+							selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> .lslide'
 						});
 					}            
                 } 
@@ -332,21 +356,21 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 				?>
 				<script>
 		    	jQuery(document).ready(function() {
-					var setting_download = '<?php echo $lboxdownload; ?>';
-		        jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').lightSlider({
-              item:<?php esc_html_e($gallitms, 'gallery-with-thumbnail-slider');?>,		                
-              slideMargin:<?php esc_html_e($getmargin, 'gallery-with-thumbnail-slider');?>,
-              addClass:'<?php esc_html_e($addclss, 'gallery-with-thumbnail-slider');?>',
-              speed:<?php esc_html_e($sliderspd, 'gallery-with-thumbnail-slider');?>,
-              pause:<?php esc_html_e($spause, 'gallery-with-thumbnail-slider');?>,
-              auto:<?php esc_html_e($smode, 'gallery-with-thumbnail-slider');?>,
-              loop:<?php esc_html_e($sloop, 'gallery-with-thumbnail-slider');?>,
-              pager:<?php esc_html_e($spager, 'gallery-with-thumbnail-slider');?>,
-              gallery:<?php esc_html_e($sgallery, 'gallery-with-thumbnail-slider');?>,
-              thumbItem:<?php esc_html_e($sthumbitem, 'gallery-with-thumbnail-slider');?>,
-	    	  controls:<?php esc_html_e($s_nav, 'gallery-with-thumbnail-slider');?>,
+					var setting_download = '<?php echo esc_attr($lboxdownload, ); ?>';
+		        jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').lightSlider({
+              item:<?php echo esc_attr($gallitms);?>,		                
+              slideMargin:<?php echo esc_attr($getmargin);?>,
+              addClass:'<?php echo esc_attr($addclss);?>',
+              speed:<?php echo esc_attr($sliderspd);?>,
+              pause:<?php echo esc_attr($spause);?>,
+              auto:<?php echo esc_attr($smode);?>,
+              loop:<?php echo esc_attr($sloop);?>,
+              pager:<?php echo esc_attr($spager);?>,
+              gallery:<?php echo esc_attr($sgallery);?>,
+              thumbItem:<?php echo esc_attr($sthumbitem);?>,
+	    	  controls:<?php echo esc_attr($s_nav);?>,
 	    	   <?php if($seffect == 'fade'): ?>
-								mode: '<?php esc_html_e($seffect, 'gallery-with-thumbnail-slider'); ?>',
+								mode: '<?php echo esc_attr($seffect); ?>',
 							<?php endif; ?>
 							
 	    				responsive : [
@@ -379,14 +403,14 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 	        			slideEndAnimation: true,
 	        			swipeThreshold: 40,        			
 		              	onSliderLoad: function(el) {
-							jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
-							jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('gwts-loaded');
+							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
+							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('gwts-loaded');
 							
-							var lithbox = jQuery('#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
+							var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
 							if(lithbox=='true'){
 								el.lightGallery({
 									download: setting_download,
-									selector: '#gwts-gwl-img-gallery<?php esc_html_e($postid, 'gallery-with-thumbnail-slider'); ?> .lslide'
+									selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> .lslide'
 								});
 							}	
 		              	}  
@@ -432,7 +456,7 @@ function gwts_gwl_shortcode_display_gallery_list($no_of_items){
 			else { ?>
 				<li>
     			<a class="gwts-gwl-thumbrig-cell" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" target="_blank">
-    				<img class="gwts-gwl-thumbrig-img" src="<?php echo GWTS_GWL_PLUGINURL; ?>includes/images/thumbnail.png" alt="img"/>
+    				<img class="gwts-gwl-thumbrig-img" src="<?php echo esc_url(GWTS_GWL_PLUGINURL.'includes/images/thumbnail.png'); ?>" alt="img"/>
             	<span class="gwts-gwl-thumbrig-overlay"></span>
             	<span class="gwts-gwl-thumbrig-text"><?php the_title_attribute(); ?></span>
             </a>

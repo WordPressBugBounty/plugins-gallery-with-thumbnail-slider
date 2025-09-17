@@ -62,11 +62,11 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 						$thumbsize = 'thumbnail';
 					}
 					?>
-				 	<div class="item gwts-gwl-prev-gallery-items" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php esc_html_e($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo $sliderPadding; ?>;">
-			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php esc_html_e($smaxwidth, 'gallery-with-thumbnail-slider') ?>px;" <?php } ?>>
+				 	<div class="item gwts-gwl-prev-gallery-items" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_attr($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_attr($sliderPadding); ?>;">
+			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php echo esc_attr($smaxwidth, 'gallery-with-thumbnail-slider') ?>px;" <?php } ?>>
 				 			
 				 		<?php $lboxswitchr = get_option('gwts_gwl_lightbx_switcher'); ?>
-			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden" data-litebx="<?php if(!empty($lboxswitchr)){echo $lboxswitchr;}else{echo "false";}?>">
+			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden" data-litebx="<?php if(!empty($lboxswitchr)){echo esc_attr($lboxswitchr);}else{echo "false";}?>">
 						   	
 						   	<?php
 							   $scaption = get_option('gwts_gwl_enable_caption');
@@ -206,31 +206,31 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 							?>
 							<script>
 							jQuery(document).ready(function() {
-								var setting_download = '<?php echo $lboxdownload; ?>';
+								var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
                 var count  = 0
                   if (count === 1) return;
                   jQuery('#gwts-gwl-img-gallery').addClass('cS-hidden');
                   jQuery('#gwts-gwl-img-gallery').lightSlider({	
                     gallery:true,	                        
-                    speed:<?php esc_html_e($sliderspd, 'gallery-with-thumbnail-slider');?>,
-                    pause:<?php esc_html_e($spause, 'gallery-with-thumbnail-slider');?>,
-                    auto:<?php esc_html_e('fade', 'gallery-with-thumbnail-slider');?>,
+                    speed:<?php echo esc_attr($sliderspd);?>,
+                    pause:<?php echo esc_attr($spause);?>,
+                    auto:<?php echo esc_attr('fade');?>,
                     item: 1,
-									  loop: <?php esc_html_e($sloop, 'gallery-with-thumbnail-slider');?>,
-									  thumbItem: <?php esc_html_e($maxThumbItm, 'gallery-with-thumbnail-slider'); ?>,
+									  loop: <?php echo esc_attr($sloop);?>,
+									  thumbItem: <?php echo esc_attr($maxThumbItm); ?>,
 									  vertical: true,
-									  verticalHeight:<?php esc_html_e($sliderHeight, 'gallery-with-thumbnail-slider'); ?>,
-									  vThumbWidth:<?php esc_html_e($thumbnlWidth, 'gallery-with-thumbnail-slider'); ?>,
+									  verticalHeight:<?php echo esc_attr($sliderHeight); ?>,
+									  vThumbWidth:<?php echo esc_attr($thumbnlWidth); ?>,
 									  thumbMargin:4,
-									  controls:<?php esc_html_e($contrlNav, 'gallery-with-thumbnail-slider'); ?>,
+									  controls:<?php echo esc_attr($contrlNav); ?>,
 									  responsive : [
 				            {
 				              breakpoint:800,
 		                	settings: {
 		                    item:1,
 		                    slideMove:1,
-		                    verticalHeight:<?php esc_html_e($vheight800, 'gallery-with-thumbnail-slider'); ?>,
-		                    thumbItem:<?php esc_html_e($vthumb800, 'gallery-with-thumbnail-slider'); ?>,
+		                    verticalHeight:<?php echo esc_attr($vheight800); ?>,
+		                    thumbItem:<?php echo esc_attr($vthumb800); ?>,
 		                  }
 				            },
 				            {
@@ -238,8 +238,8 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			                settings: {
 		                    item:1,
 		                    slideMove:1,
-		                    verticalHeight:<?php esc_html_e($vheight641, 'gallery-with-thumbnail-slider'); ?>,
-		                    thumbItem:<?php esc_html_e($vthumb641, 'gallery-with-thumbnail-slider'); ?>,
+		                    verticalHeight:<?php echo esc_attr($vheight641); ?>,
+		                    thumbItem:<?php echo esc_attr($vthumb641); ?>,
 		                  }
 				            },
 				            {
@@ -247,8 +247,8 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			                settings: {
 		                    item:1,
 		                    slideMove:1,
-		                    verticalHeight:<?php esc_html_e($vheight480, 'gallery-with-thumbnail-slider'); ?>,
-		                    thumbItem:<?php esc_html_e($vthumb480, 'gallery-with-thumbnail-slider'); ?>,
+		                    verticalHeight:<?php echo esc_attr($vheight480); ?>,
+		                    thumbItem:<?php echo esc_attr($vthumb480); ?>,
 		                  }
 				            },								            
 				        		],
@@ -272,19 +272,19 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 
 						<script>
 				    	jQuery(document).ready(function() {	
-							var setting_download = '<?php echo $lboxdownload; ?>';		    	 	
+							var setting_download = '<?php echo esc_attr($lboxdownload); ?>';		    	 	
 	            	jQuery('#gwts-gwl-img-gallery').lightSlider({		                
-                	item:<?php esc_html_e($gallitms, 'gallery-with-thumbnail-slider');?>,
-                	slideMargin:<?php esc_html_e($getmargin, 'gallery-with-thumbnail-slider');?>,
-                	addClass:'<?php esc_html_e($addclss, 'gallery-with-thumbnail-slider');?>',
-                	speed:<?php esc_html_e($sliderspd, 'gallery-with-thumbnail-slider');?>,
-                	pause:<?php esc_html_e($spause, 'gallery-with-thumbnail-slider');?>,
-                	auto:<?php esc_html_e($smode, 'gallery-with-thumbnail-slider');?>,
-                	loop:<?php esc_html_e($sloop, 'gallery-with-thumbnail-slider');?>,
-                	pager:<?php esc_html_e($spager, 'gallery-with-thumbnail-slider');?>,
-                	gallery:<?php esc_html_e($sgallery, 'gallery-with-thumbnail-slider');?>,
-                	thumbItem:<?php esc_html_e($sthumbitem, 'gallery-with-thumbnail-slider');?>,			 
-                	controls:<?php esc_html_e($s_nav,'gallery-with-thumbnail-slider');?>,
+                	item:<?php echo esc_attr($gallitms);?>,
+                	slideMargin:<?php echo esc_attr($getmargin);?>,
+                	addClass:'<?php echo esc_attr($addclss);?>',
+                	speed:<?php echo esc_attr($sliderspd);?>,
+                	pause:<?php echo esc_attr($spause);?>,
+                	auto:<?php echo esc_attr($smode);?>,
+                	loop:<?php echo esc_attr($sloop);?>,
+                	pager:<?php echo esc_attr($spager);?>,
+                	gallery:<?php echo esc_attr($sgallery);?>,
+                	thumbItem:<?php echo esc_attr($sthumbitem);?>,			 
+                	controls:<?php echo esc_attr($s_nav);?>,
       						useCSS: true,
       						cssEasing: 'ease',
 	        				easing: 'linear',

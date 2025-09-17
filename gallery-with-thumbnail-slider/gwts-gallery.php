@@ -4,7 +4,8 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 7.4
+* Version: 7.5
+* Tested up to: 6.8
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
 */
@@ -37,7 +38,7 @@ function gwts_gwl_gallery_admin_notice__success() {
     	?>
 	
     <div class="notice notice-success is-dismissible">
-        <p><?php esc_html_e( 'To view gallery setting please ', 'gallery-with-thumbnail-slider' ); ?><a href="<?php echo admin_url('edit.php?post_type=gwts-gallery&page=gwts-opts'); ?>"><?php esc_html_e( 'click here', 'gallery-with-thumbnail-slider' ); ?></a></p>
+        <p><?php echo esc_html( 'To view gallery setting please '); ?><a href="<?php echo esc_url(admin_url('edit.php?post_type=gwts-gallery&page=gwts-opts')); ?>"><?php echo esc_html( 'click here' ); ?></a></p>
     </div>
     <?php 
 	delete_option('gwts_gwl_gallery_notice');
@@ -64,52 +65,57 @@ function gwts_gwl_adminmenu(){
 	add_action( 'admin_init', 'gwlts_gwl_reg_galleryoption_plugin_settings' );
 
 }
-function gwlts_gwl_reg_galleryoption_plugin_settings()
-{
-	register_setting( 'gwlts-gwl-gallery-options-group', 'gwts_gwl_posttypes' );
+function gwlts_gwl_reg_galleryoption_plugin_settings(){
+	register_setting('gwlts-gwl-gallery-options-group', 'gwts_gwl_posttypes', 'gwlts_gwl_sanitize_posttypes' );
 }
 function gwts_gwl_slider_option_fuction(){
-	if( isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'):
-   		echo '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Settings saved.</strong></p></div>';
-	endif;
+
+	$settings_updated = filter_input(INPUT_GET, 'settings-updated', FILTER_SANITIZE_STRING);
+    if ( $settings_updated ) {
+        echo '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Settings saved.</strong></p></div>';
+	}
 	?>
-	<h3><?php esc_html_e( 'Enable The Image Gallery Slider For Post Types', 'gallery-with-thumbnail-slider' ); ?></h3>
+	<h3><?php echo esc_html( 'Enable The Image Gallery Slider For Post Types' ); ?></h3>
  	
 	<?php
-	$getarg = array(
-		'public'	=> true,
-		'_builtin'	=>	true
-	);
-	$getptyp = get_post_types($getarg, 'names', 'or');
+	// Get only posts, pages, and custom post types
+	$builtin_post_types = array('post', 'page');
+	$custom_post_types = get_post_types(array('public' => true, '_builtin' => false), 'names');
+	
+	// Remove unwanted custom post types
+	$excluded_custom_types = array('attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'gwts-gallery', 'oembed_cache', 'user_request', 'wp_block', 'wp_template', 'wp_template_part', 'wp_global_styles', 'wp_navigation', 'wp_font_family', 'wp_font_face');
+	$custom_post_types = array_diff($custom_post_types, $excluded_custom_types);
+	
+	// Combine built-in and custom post types
+	$allowed_post_types = array_merge($builtin_post_types, $custom_post_types);
 	$getopt = get_option('gwts_gwl_posttypes');
-	$searcharry = array('attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'gwts-gallery', 'oembed_cache', 'user_request', 'wp_block');
 
 	echo '<form method="post" action="options.php">';
 	settings_fields( 'gwlts-gwl-gallery-options-group' ); 
    	do_settings_sections( 'gwlts-gwl-gallery-options-group' );  
-	if(!empty($getptyp)){
+	if(!empty($allowed_post_types)){
 		$counterid = 1;
-		foreach ($getptyp as $gttype) {
-			if(!in_array($gttype, $searcharry)){ ?>
-				<div class="postype-sec"><span class="postype-ttl"><?php esc_html_e($gttype, 'gallery-with-thumbnail-slider'); ?></span>
-					<label class="switch">
-						<input type="checkbox" id="togBtn-<?php esc_html_e($counterid, 'gallery-with-thumbnail-slider'); ?>" name="gwts_gwl_posttypes[]" value="<?php esc_html_e($gttype, 'gallery-with-thumbnail-slider'); ?>" <?php if(!empty($getopt)){ 
-					if(in_array($gttype, get_option('gwts_gwl_posttypes'))){ echo "checked"; }} ?> ><div class="gwtssetopt slider round"></div>
-					</label>
-				</div>
-			<?php $counterid++; }
-		}		
+		foreach ($allowed_post_types as $gttype) {
+			$post_type_obj = get_post_type_object($gttype);
+			$display_name = $post_type_obj ? $post_type_obj->labels->name : ucfirst($gttype);
+			?>
+			<div class="postype-sec"><span class="postype-ttl"><?php echo esc_html($display_name); ?></span>
+				<label class="switch">
+					<input type="checkbox" id="togBtn-<?php echo esc_html($counterid); ?>" name="gwts_gwl_posttypes[]" value="<?php echo esc_attr($gttype); ?>" <?php if(!empty($getopt)){ 
+				if(in_array($gttype, get_option('gwts_gwl_posttypes'))){ echo "checked"; }} ?> ><div class="gwtssetopt slider round"></div>
+				</label>
+			</div>
+		<?php $counterid++; }
 	}
 	submit_button();
-	wp_nonce_field( basename(__FILE__), 'gwts_gwl_enable_post_type_nonce' );
 	echo '</form>';	
 	echo '<hr>';
 	?>
 	<h3>
-		<?php esc_html_e('Use the shortcode to display galleries listing. [gwts_gwl_galleries_listing no_of_items=12]', 'gallery-with-thumbnail-slider'); ?>
+		<?php echo esc_html('Use the shortcode to display galleries listing. [gwts_gwl_galleries_listing no_of_items=12]'); ?>
 	</h3>
 
-	<p><?php esc_html_e('Change the "no_of_items" value in the shortcode above to display items in the gallery.', 'gallery-with-thumbnail-slider'); ?></p>
+	<p><?php echo esc_html('Change the "no_of_items" value in the shortcode above to display items in the gallery.'); ?></p>
 
 	<?php
 }
@@ -125,36 +131,46 @@ function gwlts_gwl_gallery_plugin_settings() {
 		'sanitize_callback' => 'sanitize_text_field',
 		'default' => NULL,
 	);
-    /*register our settings*/
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_gallery_numberof_items' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidemargin' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_classtoslider', $args );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_speedslider' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slideinterval', $numargs );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidermode' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_allow_looping' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_navigation' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_menuoption' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_numberof_thumbitems', $numargs );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_sliderwidth', $numargs );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_pagination' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_switcher' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_effect' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_thumb_size' );
-    register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_caption' );
-	register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_alt_txt' );
+	/*register our settings*/
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_gallery_numberof_items', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidemargin', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_classtoslider', $args);
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_speedslider', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slideinterval', $numargs);
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidermode', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_allow_looping', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_navigation', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_menuoption', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_numberof_thumbitems', $numargs);
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_sliderwidth', $numargs);
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_pagination', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_switcher', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_effect', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_thumb_size', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_caption', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_alt_txt', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_download', 'gwlts_gwl_sanitize_posttypes');
+}
 
-	register_setting( 'gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_download' );
+
+// Sanitization callback function
+function gwlts_gwl_sanitize_posttypes( $input ) {
+    // Sanitize the input (assuming it's an array of post types)
+    if ( is_array( $input ) ) {
+        return array_map( 'sanitize_text_field', $input ); // Sanitize each item in the array
+    }
+    return sanitize_text_field( $input ); // Fallback for non-array input
 }
 
 /* Sub Menu Setting Callback function */
 function gwts_gwl_gallery_option_fuction(){ 
-	if( isset($_GET['settings-updated']) && $_GET['settings-updated'] == 'true'):
-   		echo '<div id="setting-error-settings_updated" class="updated settings-error notice is-dismissible"> 
-		<p><strong>Settings saved.</strong></p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
-	endif;
 
- 	$getmargin = get_option('gwts_gwl_slidemargin');
+	$settings_updated = filter_input(INPUT_GET, 'settings-updated', FILTER_SANITIZE_STRING);
+    if ( $settings_updated ) {
+        echo '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Settings updated.</strong></p></div>';
+	}
+
+	$getmargin = get_option('gwts_gwl_slidemargin');
 	$smode = get_option('gwts_gwl_slidermode');
 	$sloop = get_option('gwts_gwl_allow_looping');
 	$snav = get_option('gwts_gwl_slider_navigation');
@@ -171,17 +187,17 @@ function gwts_gwl_gallery_option_fuction(){
 ?>
 <div class="wrap">
 
-<h3><?php esc_html_e( 'Slider Global Settings', 'gallery-with-thumbnail-slider' ); ?></h3>
+<h3><?php echo esc_html( 'Slider Global Settings' ); ?></h3>
 
 <div class="notice gwlts--notice">
 	<div>
-		<h3><?php esc_html_e( 'Gallery With Thumbnail Slider', 'gallery-with-thumbnail-slider' ); ?></h3>
-		<p>Here's a link to the demo and documentation for the plugin. This will help you learn more about its features and how to use it.</p>
+		<h3><?php echo esc_html( "Gallery With Thumbnail Slider" ); ?></h3>
+		<p><?php echo esc_html( "Here's a link to the demo and documentation for the plugin. This will help you learn more about its features and how to use it." ); ?></p>
 		<div class="e-notice__actions">
-			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/demo/" class="e-button--cta" target="_blank"><span>Demo</span></a>
-			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/doc/" class="e-button--cta cta-secondary" target="_blank"><span>Documentation</span></a>
+			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/demo/" class="e-button--cta" target="_blank"><span><?php echo esc_html( "Demo" ); ?></span></a>
+			<a href="https://wp-plugins.galaxyweblinks.com/wp-plugins/gallery-with-thumbnail-slider/doc/" class="e-button--cta cta-secondary" target="_blank"><span><?php echo esc_html( "Documentation" ); ?></span></a>
 		</div>
-		<p class="e-note">For any feedback or queries regarding this plugin, please contact our <a href="https://wp-plugins.galaxyweblinks.com/contact/" target="_blank">Support team</a>.</p>
+		<p class="e-note">For any feedback or queries regarding this plugin, please contact our <a href="https://wp-plugins.galaxyweblinks.com/contact/" target="_blank"><?php echo esc_html( "Support team" ); ?></a>.</p>
 	</div>
 </div>
 
@@ -191,7 +207,7 @@ function gwts_gwl_gallery_option_fuction(){
 <div class="mainopt">
 
  	<div id="gwts-gwl-sec1" class="gwts-gwl-sec1">
-	<p id="gwts-gwl-selslid" class="gwts-settings-opts"><label for="gwts_gwl_gallery_numberof_items"><?php esc_html_e( 'Display slide(s) :', 'gallery-with-thumbnail-slider' ); ?> </label>
+	<p id="gwts-gwl-selslid" class="gwts-settings-opts"><label for="gwts_gwl_gallery_numberof_items"><?php echo esc_html( 'Display slide(s) :' ); ?> </label>
 		 <select name="gwts_gwl_gallery_numberof_items" id="gwts-gwl-galleryitems">
 		 <?php $gallitms = get_option('gwts_gwl_gallery_numberof_items');?>
 		 	<option value="1" <?php if($gallitms ==1){echo "selected";} ?>>1</option>
@@ -202,20 +218,20 @@ function gwts_gwl_gallery_option_fuction(){
 		 	<option value="6" <?php if($gallitms ==6){echo "selected";} ?>>6</option>
 		 </select>
 	</p>
-	<p class="gwts-settings-opts" id="gwts-gwl-slidergap" <?php if($gallitms == "1" || $gallitms == ""){ ?>style="display: none;" <?php } ?>><label for="gwts_gwl_slidemargin"><?php esc_html_e( 'Margin Between slides : ', 'gallery-with-thumbnail-slider' ); ?></label><input type="number" min="1" max="200" id="gwts-gwl-marginslide" name="gwts_gwl_slidemargin" placeholder="Default 10px" value="<?php if(!empty($getmargin)){echo $getmargin;} ?>"></p>
+	<p class="gwts-settings-opts" id="gwts-gwl-slidergap" <?php if($gallitms == "1" || $gallitms == ""){ ?>style="display: none;" <?php } ?>><label for="gwts_gwl_slidemargin"><?php echo esc_html( 'Margin Between slides : ' ); ?></label><input type="number" min="1" max="200" id="gwts-gwl-marginslide" name="gwts_gwl_slidemargin" placeholder="Default 10px" value="<?php if(!empty($getmargin)){echo esc_attr($getmargin);} ?>"></p>
 	</div>
 
- 	<p class="gwts-settings-opts"><label for="gwts_gwl_classtoslider"><?php esc_html_e( 'Add class in slider : ', 'gallery-with-thumbnail-slider' ); ?></label><input type="text" placeholder="Add custom class" name="gwts_gwl_classtoslider" value="<?php echo get_option('gwts_gwl_classtoslider'); ?>"></p>
+ 	<p class="gwts-settings-opts"><label for="gwts_gwl_classtoslider"><?php echo esc_html( 'Add class in slider : ' ); ?></label><input type="text" placeholder="Add custom class" name="gwts_gwl_classtoslider" value="<?php echo esc_attr(get_option('gwts_gwl_classtoslider')); ?>"></p>
 
- 	<p class="gwts-settings-opts"><label for="gwts_gwl_sliderwidth"><?php esc_html_e( 'Slider Max width ( px ) : ', 'gallery-with-thumbnail-slider' ); ?></label><input type="number" min="200" max="2000" placeholder="Default full width" name="gwts_gwl_sliderwidth" value="<?php echo get_option('gwts_gwl_sliderwidth'); ?>"></p>
+ 	<p class="gwts-settings-opts"><label for="gwts_gwl_sliderwidth"><?php echo esc_html( 'Slider Max width ( px ) : ' ); ?></label><input type="number" min="200" max="2000" placeholder="Default full width" name="gwts_gwl_sliderwidth" value="<?php echo esc_attr( get_option('gwts_gwl_sliderwidth')); ?>"></p>
  
  	<hr>
- 	<p class="gwts-settings-opts"><label for="gwts_gwl_speedslider"><?php esc_html_e( 'Slider Speed ( ms ) : ', 'gallery-with-thumbnail-slider' ); ?></label><input type="number" min="200" max="1500" placeholder="Default speed 500" name="gwts_gwl_speedslider" value="<?php if(!empty(get_option('gwts_gwl_speedslider'))){ echo get_option('gwts_gwl_speedslider'); } ?>"></p>
+ 	<p class="gwts-settings-opts"><label for="gwts_gwl_speedslider"><?php echo esc_html( 'Slider Speed ( ms ) : ' ); ?></label><input type="number" min="200" max="1500" placeholder="Default speed 500" name="gwts_gwl_speedslider" value="<?php if(!empty(get_option('gwts_gwl_speedslider'))){ echo esc_attr( get_option('gwts_gwl_speedslider')); } ?>"></p>
  
- 	<p class="gwts-settings-opts"><label for="gwts_gwl_slideinterval"><?php esc_html_e( 'Slide Interval/Pause ( seconds ) : ', 'gallery-with-thumbnail-slider' ); ?></label><input type="number" min="2" max="300" placeholder="Default 2 sec." name="gwts_gwl_slideinterval" value="<?php if(!empty(get_option('gwts_gwl_slideinterval'))){ echo get_option('gwts_gwl_slideinterval'); } ?>"></p>
+ 	<p class="gwts-settings-opts"><label for="gwts_gwl_slideinterval"><?php echo esc_html( 'Slide Interval/Pause ( seconds ) : ' ); ?></label><input type="number" min="2" max="300" placeholder="Default 2 sec." name="gwts_gwl_slideinterval" value="<?php if(!empty(get_option('gwts_gwl_slideinterval'))){ echo esc_attr( get_option('gwts_gwl_slideinterval')); } ?>"></p>
  
 	<!-- Slider Navigation -->
-	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_navigation"><?php esc_html_e( 'Slider Navigation : ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_navigation"><?php echo esc_html( 'Slider Navigation : '); ?></label>
 		<select name="gwts_gwl_slider_navigation" id="gwts-gwl-slidernav">
 		 	<option value="true" <?php if($snav == "true"){echo "selected";} ?>>True</option>
 		 	<option value="false" <?php if($snav == "false"){echo "selected";} ?>>False</option>
@@ -223,7 +239,7 @@ function gwts_gwl_gallery_option_fuction(){
 	</p>
 
  	<!-- Slider pagination -->
- 	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_pagination"><?php esc_html_e( 'Slider pagination : ', 'gallery-with-thumbnail-slider' ); ?></label>
+ 	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_pagination"><?php echo esc_html( 'Slider pagination : ' ); ?></label>
 		<select name="gwts_gwl_slider_pagination" id="gwts-gwl-sliderpager">
 		 	<option value="true" <?php if($spager == "true"){echo "selected";} ?>>True</option>
 		 	<option value="false" <?php if($spager == "false"){echo "selected";} ?>>False</option>
@@ -232,19 +248,19 @@ function gwts_gwl_gallery_option_fuction(){
 
 	<div class="gwts-gwl-pageroption" id="gwts-gwl-pageroption" <?php if($spager == "false") {?> style="display:none" <?php }?>>
 
- 		<p class="gwts-settings-opts"><label for="gwts_gwl_slider_menuoption"><?php esc_html_e( 'Select Menu Options : ', 'gallery-with-thumbnail-slider' ); ?></label>
+ 		<p class="gwts-settings-opts"><label for="gwts_gwl_slider_menuoption"><?php echo esc_html( 'Select Menu Options : ' ); ?></label>
 			<select name="gwts_gwl_slider_menuoption" id="gwts-gwl-showgallery-menu">
 			 	<option value="true" <?php if($sgallery == "true"){echo "selected";} ?>>Show Thumbnail</option>
 			 	<option value="false" <?php if($sgallery == "false"){echo "selected";} ?>>Show Dot pagination</option>
 			 </select>
 		</p>
-	 	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_effect"><?php esc_html_e( 'Select Slider Effect : ', 'gallery-with-thumbnail-slider' ); ?></label>
+	 	<p class="gwts-settings-opts"><label for="gwts_gwl_slider_effect"><?php echo esc_html( 'Select Slider Effect : ' ); ?></label>
 			<select name="gwts_gwl_slider_effect" id="gwts-gwl-slider-effect">
 			 	<option value="slide" <?php if($seffect == "slide"){echo "selected";} ?>>Slide</option>
 			 	<option value="fade" <?php if($seffect == "fade"){echo "selected";} ?>>Fade</option>
 			 </select>
 		</p>
-		<p class="gwts-settings-opts"><label for="gwts_gwl_slider_thumb_size"><?php esc_html_e( 'Select Thumbnails Size : ', 'gallery-with-thumbnail-slider' ); ?></label>
+		<p class="gwts-settings-opts"><label for="gwts_gwl_slider_thumb_size"><?php echo esc_html( 'Select Thumbnails Size : ' ); ?></label>
 			<select name="gwts_gwl_slider_thumb_size" id="gwts-gwl-slider-thumb-size">
 			 	<option value="thumbnail" <?php if($thumbsize == "thumbnail"){echo "selected";} ?>>Thumbnail</option>
 			 	<option value="medium" <?php if($thumbsize == "medium"){echo "selected";} ?>>Medium</option>
@@ -253,14 +269,14 @@ function gwts_gwl_gallery_option_fuction(){
 			 	<option value="full" <?php if($thumbsize == "full"){echo "selected";} ?>>Full</option>
 			 </select>
 		</p>
- 		<p class="gwts-settings-opts" id="gwts-gwl-slider-thumbitems" <?php if($sgallery == "false") {?> style="display:none" <?php }?>><label for="gwts_gwl_numberof_thumbitems"><?php esc_html_e( 'Number of thumbnails : ', 'gallery-with-thumbnail-slider' ); ?></label><input id="gwts-gwl-thumbnailitems" type="number" min="2" max="15" name="gwts_gwl_numberof_thumbitems" placeholder="Default 9" value="<?php if(!empty($sthumbitem)){echo $sthumbitem;} ?>">
+ 		<p class="gwts-settings-opts" id="gwts-gwl-slider-thumbitems" <?php if($sgallery == "false") {?> style="display:none" <?php }?>><label for="gwts_gwl_numberof_thumbitems"><?php echo esc_html( 'Number of thumbnails : ' ); ?></label><input id="gwts-gwl-thumbnailitems" type="number" min="2" max="15" name="gwts_gwl_numberof_thumbitems" placeholder="Default 9" value="<?php if(!empty($sthumbitem)){echo esc_attr($sthumbitem);} ?>">
  		</p>
 	</div>
 	
 	<hr>
 	<!-- Enable Caption -->
 	<div class="gwts-settings-opts">
-	<label for="gwts_gwl_enable_caption"><?php esc_html_e( 'Enable Caption: ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<label for="gwts_gwl_enable_caption"><?php echo esc_html( 'Enable Caption: ' ); ?></label>
 	 <label class="switch">
 		<input type="checkbox" id="gwts_gwl_enable_caption" name="gwts_gwl_enable_caption" value="true"<?php if(!empty($scaption)){ echo "checked"; } ?>>
 		<div class="gwtssetopt slider round"></div>
@@ -269,7 +285,7 @@ function gwts_gwl_gallery_option_fuction(){
 
 	<!-- Enable Caption -->
 	<div class="gwts-settings-opts">
-	<label for="gwts_gwl_enable_alt_txt"><?php esc_html_e( 'Enable Alt Text: ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<label for="gwts_gwl_enable_alt_txt"><?php echo esc_html( 'Enable Alt Text: '); ?></label>
 	 <label class="switch">
 		<input type="checkbox" id="gwts_gwl_enable_alt_txt" name="gwts_gwl_enable_alt_txt" value="true"<?php if(!empty($img_enable_alt_txt)){ echo "checked"; } ?>>
 		<div class="gwtssetopt slider round"></div>
@@ -278,7 +294,7 @@ function gwts_gwl_gallery_option_fuction(){
 
 	<!-- Enable autometic slide -->
 	<div class="gwts-settings-opts">
-	<label for="gwts_gwl_slidermode"><?php esc_html_e( 'Enable Auto Slide: ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<label for="gwts_gwl_slidermode"><?php echo esc_html( 'Enable Auto Slide: ' ); ?></label>
 	 <label class="switch">
 		<input type="checkbox" id="togBtn-ltbox" name="gwts_gwl_slidermode" value="true"<?php if(!empty($smode)){ echo "checked"; } ?>>
 		<div class="gwtssetopt slider round"></div>
@@ -287,7 +303,7 @@ function gwts_gwl_gallery_option_fuction(){
 
 	<!-- Enable loop slider -->
 	<div class="gwts-settings-opts">
-	<label for="gwts_gwl_allow_looping"><?php esc_html_e( 'Enable Loop Slide: ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<label for="gwts_gwl_allow_looping"><?php echo esc_html( 'Enable Loop Slide: ' ); ?></label>
 	 <label class="switch">
 		<input type="checkbox" id="gwts_gwl_allow_looping" name="gwts_gwl_allow_looping" value="true"<?php if(!empty($sloop)){ echo "checked"; } ?>>
 		<div class="gwtssetopt slider round"></div>
@@ -296,7 +312,7 @@ function gwts_gwl_gallery_option_fuction(){
 
 	<!-- Enable Lightbox slider -->
 	<div class="gwts-settings-opts">
-	<label for="gwts_gwl_lightbx_switcher"><?php esc_html_e( 'Enable Lightbox Slider : ', 'gallery-with-thumbnail-slider' ); ?></label>
+	<label for="gwts_gwl_lightbx_switcher"><?php echo esc_html( 'Enable Lightbox Slider : '); ?></label>
 	 <label class="switch">
 		<input type="checkbox" id="togBtn-ltbox" name="gwts_gwl_lightbx_switcher" value="true"<?php if(!empty($lboxswitchr)){ echo "checked"; } ?>>
 		<div class="gwtssetopt slider round"></div>
@@ -306,18 +322,17 @@ function gwts_gwl_gallery_option_fuction(){
 	<!-- Lightbox download option disable -->
 	<?php if(!empty($lboxswitchr)){ ?>
 		<div class="gwts-settings-opts">
-			<label for="gwts_gwl_lightbx_download"><?php esc_html_e( 'Enable Lightbox Download Option : ', 'gallery-with-thumbnail-slider' ); ?></label>
+			<label for="gwts_gwl_lightbx_download"><?php echo esc_html( 'Enable Lightbox Download Option : ' ); ?></label>
 			<label class="switch">
 				<input type="checkbox" id="togBtn-ltbox-download" name="gwts_gwl_lightbx_download" value="true"<?php if(!empty($lboxdownload)){ echo "checked"; } ?>>
 				<div class="gwtssetopt slider round"></div>
 			</label>
 		</div>
 	<?php } ?>
-
- 	<?php submit_button(__("Save Settings","gallery-with-thumbnail-slider"), 'primary', 'slidersettings'); ?>
+	<?php submit_button(__("Save Settings","gallery-with-thumbnail-slider"), 'primary', 'slidersettings'); ?>
 </div>
 
-	<?php wp_nonce_field( basename(__FILE__), 'gwts_gwl_enable_slider_setting_nonce' ); ?>
+	
 </form>
 
 <script>
@@ -360,30 +375,39 @@ jQuery(document).ready(function(){
 <?php }
 
 /* Register jquery for sorting items in gallery */
-function gwts_gwl_gallery_enqueue_script(){
+function gwts_gwl_gallery_enqueue_script()
+{
+	$script_version = gmdate('Ymd');
+
 	wp_enqueue_media();
-	wp_enqueue_script('gwts-gwl-galleryjs', GWTS_GWL_PLUGINURL.'includes/js/gwts-gallery.js', array('jquery'));
-	wp_enqueue_script( 'jquery-ui-sortable' );
-	wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL.'includes/css/gwts-adminstyle.css');	
+	wp_enqueue_script('gwts-gwl-galleryjs', GWTS_GWL_PLUGINURL . 'includes/js/gwts-gallery.js', array('jquery'), $script_version, true);
+	wp_enqueue_script('jquery-ui-sortable');
+	wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL . 'includes/css/gwts-adminstyle.css', array(), $script_version);
 	/* register vertical script */
-	wp_register_script( 'gwts-gwl-veticlegal', GWTS_GWL_PLUGINURL.'includes/js/gwts-vertical-gallery-slider.js', array('jquery') );
+	wp_register_script('gwts-gwl-veticlegal', GWTS_GWL_PLUGINURL . 'includes/js/gwts-vertical-gallery-slider.js', array('jquery'), $script_version, true);
 }
-add_action('admin_enqueue_scripts','gwts_gwl_gallery_enqueue_script');
+add_action('admin_enqueue_scripts', 'gwts_gwl_gallery_enqueue_script');
 
 
 /* enqueue script for front end */
-function gwts_gwl_frontend_enqueue_script(){	
-	wp_enqueue_style('gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL.'includes/css/lightslider.css');
-	wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL.'includes/css/gwts-style.css');
-	wp_enqueue_style('gwts-gwl-lightgal-css', GWTS_GWL_PLUGINURL.'includes/css/lightgallery.css');
+function gwts_gwl_frontend_enqueue_script()
+{
+	if ( is_page() ) {
+		$script_version = gmdate('Ymd');
+		
+		wp_enqueue_style('gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL . 'includes/css/lightslider.css', array(), $script_version);
+		wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL . 'includes/css/gwts-style.css', array(), $script_version);
+		wp_enqueue_style('gwts-gwl-lightgal-css', GWTS_GWL_PLUGINURL . 'includes/css/lightgallery.css', array(), $script_version);
 
-	wp_enqueue_script('gwts-gwl-lightslider', GWTS_GWL_PLUGINURL.'includes/js/lightslider.js', array('jquery'));
-	wp_enqueue_script('gwts-gwl-cdngal', GWTS_GWL_PLUGINURL.'includes/js/picturefill.min.js', array('jquery'));
-	wp_enqueue_script('gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL.'includes/js/lightgallery-all.min.js', array('jquery'));
-	wp_enqueue_script('gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL.'includes/js/jquery.mousewheel.min.js', array('jquery'));
-	wp_enqueue_script( 'gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL.'includes/js/gwts.zoom.min.js', array('jquery') );
+		wp_enqueue_script('gwts-gwl-lightslider', GWTS_GWL_PLUGINURL . 'includes/js/lightslider.js', array('jquery'), $script_version, true);
+		wp_enqueue_script('gwts-gwl-cdngal', GWTS_GWL_PLUGINURL . 'includes/js/picturefill.min.js', array('jquery'), $script_version, true); 
+		wp_enqueue_script('gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL . 'includes/js/lightgallery-all.min.js', array('jquery'), $script_version, true); 
+		wp_enqueue_script('gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL . 'includes/js/jquery.mousewheel.min.js', array('jquery'), $script_version, true); 
+		wp_enqueue_script('gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL . 'includes/js/gwts.zoom.min.js', array('jquery'), $script_version, true);
+	}
 }
-add_action('wp_enqueue_scripts','gwts_gwl_frontend_enqueue_script');
+add_action('wp_enqueue_scripts', 'gwts_gwl_frontend_enqueue_script');
+
 
 /**
  * You can use these filters to add custom links to your plugin row in the plugin list.

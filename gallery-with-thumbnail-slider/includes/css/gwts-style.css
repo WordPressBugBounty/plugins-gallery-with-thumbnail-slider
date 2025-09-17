@@ -1,7 +1,28 @@
 ul.lSGallery li.active {
-    border: 2px solid #000;
+    border-color: #000 !important;
     /*outline: medium none;
     padding: 3px;*/
+}
+
+/* Ensure active border doesn't change item width so thumbnails don't wrap */
+.lSSlideOuter .lSPager.lSGallery li {
+    border: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+/* Force thumbnails to stay on one line */
+.lSSlideOuter .lSPager.lSGallery {
+    /* display: flex; */
+    flex-wrap: nowrap;
+    align-items: center;
+    /* white-space: nowrap; */
+    font-size: 0;
+}
+.lSSlideOuter .lSPager.lSGallery li {
+    display: inline-block;
+    float: none !important;
+    margin: 0;
+    flex: 0 0 auto;
 }
 
 #gwts-gwl-thumbrig {
@@ -14,7 +35,7 @@ ul.lSGallery li.active {
 }
 #gwts-gwl-thumbrig li {
     display: inline-block;
-    *display:inline;/*for IE6 - IE7*/
+    /* Removed legacy IE6/7 hack: *display:inline; */
     width:25%;
     vertical-align:middle;
     box-sizing:border-box;
