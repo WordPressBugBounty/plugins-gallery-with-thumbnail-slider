@@ -6,7 +6,7 @@ Tags: gallery, slider, thumbnail, vertical slider
 Requires at least: WordPress 4.0 or higher
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 7.6
+Stable tag: 7.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,9 @@ We can manage thumb items and vertical size in different breakpoints for respons
 
 == Changelog ==
 
+= 7.7 =
+– Stable Release
+
 = 7.6 =
 – Fixed console error
 
@@ -173,6 +176,9 @@ Release with lightbox gallery option
 First Stable Release
 
 == Upgrade Notice ==
+
+= 7.7 =
+– Stable Release
 
 = 7.6 =
 – Fixed console error

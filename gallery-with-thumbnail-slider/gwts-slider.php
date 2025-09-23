@@ -82,7 +82,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php echo esc_attr($smaxwidth, 'gallery-with-thumbnail-slider') ?>px;" <?php } ?>>
 				 			
 				 		<?php $lboxswitchr = get_option('gwts_gwl_lightbx_switcher'); ?>
-			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo $itemscls; ?>">
+			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>">
 						   	
 						   	<?php
 							   $scaption = get_option('gwts_gwl_enable_caption');
@@ -234,7 +234,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
                     gallery:true,	                        
                     speed:<?php echo esc_attr($sliderspd);?>,
                     pause:<?php echo esc_attr($spause);?>,
-                    auto:<?php echo esc_attr('fade');?>,
+                    auto:<?php echo esc_attr($smode);?>,
                     item: 1,
 									  loop: <?php echo esc_attr($sloop);?>,
 									  thumbItem: <?php echo esc_attr($maxThumbItm); ?>,

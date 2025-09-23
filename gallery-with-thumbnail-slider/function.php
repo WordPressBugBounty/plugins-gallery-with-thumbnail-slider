@@ -86,7 +86,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_html($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_html($sliderPadding, 'gallery-with-thumbnail-slider'); ?>;">            
 	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php echo esc_html($smaxwidth, 'gallery-with-thumbnail-slider'); ?>px;"<?php } ?>>
 
-	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo $itemscls; ?>">
+	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>">
 				    <?php
 					$scaption = get_option('gwts_gwl_enable_caption');
 						foreach ($getimag as $imgvalue) {
