@@ -4,7 +4,7 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 7.5
+* Version: 7.6
 * Tested up to: 6.8
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
@@ -392,19 +392,20 @@ add_action('admin_enqueue_scripts', 'gwts_gwl_gallery_enqueue_script');
 /* enqueue script for front end */
 function gwts_gwl_frontend_enqueue_script()
 {
-	if ( is_page() ) {
-		$script_version = gmdate('Ymd');
-		
-		wp_enqueue_style('gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL . 'includes/css/lightslider.css', array(), $script_version);
-		wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL . 'includes/css/gwts-style.css', array(), $script_version);
-		wp_enqueue_style('gwts-gwl-lightgal-css', GWTS_GWL_PLUGINURL . 'includes/css/lightgallery.css', array(), $script_version);
+	$script_version = gmdate('Ymd');
+	
+	wp_enqueue_style('gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL . 'includes/css/lightslider.css', array(), $script_version);
+	wp_enqueue_style('gwts-gwl-style-css', GWTS_GWL_PLUGINURL . 'includes/css/gwts-style.css', array(), $script_version);
+	wp_enqueue_style('gwts-gwl-lightgal-css', GWTS_GWL_PLUGINURL . 'includes/css/lightgallery.css', array(), $script_version);
 
-		wp_enqueue_script('gwts-gwl-lightslider', GWTS_GWL_PLUGINURL . 'includes/js/lightslider.js', array('jquery'), $script_version, true);
-		wp_enqueue_script('gwts-gwl-cdngal', GWTS_GWL_PLUGINURL . 'includes/js/picturefill.min.js', array('jquery'), $script_version, true); 
-		wp_enqueue_script('gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL . 'includes/js/lightgallery-all.min.js', array('jquery'), $script_version, true); 
-		wp_enqueue_script('gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL . 'includes/js/jquery.mousewheel.min.js', array('jquery'), $script_version, true); 
-		wp_enqueue_script('gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL . 'includes/js/gwts.zoom.min.js', array('jquery'), $script_version, true);
-	}
+	wp_enqueue_script('gwts-gwl-lightslider', GWTS_GWL_PLUGINURL . 'includes/js/lightslider.js', array('jquery'), $script_version, true);
+	wp_enqueue_script('gwts-gwl-cdngal', GWTS_GWL_PLUGINURL . 'includes/js/picturefill.min.js', array('jquery'), $script_version, true); 
+	wp_enqueue_script('gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL . 'includes/js/jquery.mousewheel.min.js', array('jquery'), $script_version, true); 
+	wp_enqueue_script('gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL . 'includes/js/lightgallery-all.min.js', array('jquery', 'gwts-gwl-mousewheel'), $script_version, true); 
+	
+
+	wp_enqueue_script('gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL . 'includes/js/gwts.zoom.min.js', array('jquery'), $script_version, true);
+	
 }
 add_action('wp_enqueue_scripts', 'gwts_gwl_frontend_enqueue_script');
 
