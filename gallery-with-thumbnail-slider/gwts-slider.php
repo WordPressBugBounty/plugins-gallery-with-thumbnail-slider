@@ -82,7 +82,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php echo esc_attr($smaxwidth, 'gallery-with-thumbnail-slider') ?>px;" <?php } ?>>
 				 			
 				 		<?php $lboxswitchr = get_option('gwts_gwl_lightbx_switcher'); ?>
-			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>">
+			        <ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
 						   	
 						   	<?php
 							   $scaption = get_option('gwts_gwl_enable_caption');
@@ -339,7 +339,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 									if(lithbox=='true'){
 										var galleryElement = jQuery('#gwts-gwl-img-gallery');
 										var galleryItems = galleryElement.find('.lslide');
-										if(galleryElement.length > 0 && galleryItems.length > 0 && typeof lightGallery !== 'undefined'){
+										if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                                         galleryElement.lightGallery({
                                             download: setting_download,
                                       selector: '.gwts-gwl-slidergal li'

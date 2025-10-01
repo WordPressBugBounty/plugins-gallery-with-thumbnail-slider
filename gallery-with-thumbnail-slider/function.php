@@ -86,7 +86,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_html($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_html($sliderPadding, 'gallery-with-thumbnail-slider'); ?>;">            
 	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php echo esc_html($smaxwidth, 'gallery-with-thumbnail-slider'); ?>px;"<?php } ?>>
 
-	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>">
+	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
 				    <?php
 					$scaption = get_option('gwts_gwl_enable_caption');
 						foreach ($getimag as $imgvalue) {
@@ -320,7 +320,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					if(lithbox=='true'){
 						var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>');
 						var galleryItems = galleryElement.find('.lslide');
-						if(galleryElement.length > 0 && galleryItems.length > 0 && typeof lightGallery !== 'undefined'){
+						if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                             galleryElement.lightGallery({
                                 download: setting_download,
                                 selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
@@ -414,7 +414,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 							if(lithbox=='true'){
 								var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>');
 								var galleryItems = galleryElement.find('.lslide');
-								if(galleryElement.length > 0 && galleryItems.length > 0 && typeof lightGallery !== 'undefined'){
+								if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                                     galleryElement.lightGallery({
                                         download: setting_download,
                                         selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
