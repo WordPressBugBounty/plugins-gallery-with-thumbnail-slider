@@ -4,8 +4,8 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 7.8
-* Tested up to: 6.8
+* Version: 8.0
+* Tested up to: 6.9
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
 */
@@ -61,12 +61,12 @@ function gwts_gwl_adminmenu(){
 	add_menu_page(__( 'GWTS Gallery', 'gallery-with-thumbnail-slider' ),__( 'GWTS Gallery', 'gallery-with-thumbnail-slider' ), 'manage_options', 'edit.php?post_type=gwts-gallery', NULL);
 	add_submenu_page('edit.php?post_type=gwts-gallery', __( 'Enable Gallery', 'gallery-with-thumbnail-slider' ),__( 'Gallery Options', 'gallery-with-thumbnail-slider' ), 'manage_options', 'gwts-opts','gwts_gwl_slider_option_fuction');
 	add_submenu_page('edit.php?post_type=gwts-gallery',__( 'Slider Settings', 'gallery-with-thumbnail-slider' ),__( 'Slider Settings', 'gallery-with-thumbnail-slider' ), 'manage_options', 'gwts-slider-settings','gwts_gwl_gallery_option_fuction');
-	add_action( 'admin_init', 'gwlts_gwl_gallery_plugin_settings' );
-	add_action( 'admin_init', 'gwlts_gwl_reg_galleryoption_plugin_settings' );
+	add_action( 'admin_init', 'gwts_gallery_plugin_settings' );
+	add_action( 'admin_init', 'gwts_gallery_options_plugin_settings' );
 
 }
-function gwlts_gwl_reg_galleryoption_plugin_settings(){
-	register_setting('gwlts-gwl-gallery-options-group', 'gwts_gwl_posttypes', 'gwlts_gwl_sanitize_posttypes' );
+function gwts_gallery_options_plugin_settings(){
+	register_setting('gwlts-gwl-gallery-options-group', 'gwts_gwl_posttypes', 'gwts_sanitize_posttypes' );
 }
 function gwts_gwl_slider_option_fuction(){
 
@@ -119,7 +119,7 @@ function gwts_gwl_slider_option_fuction(){
 
 	<?php
 }
-function gwlts_gwl_gallery_plugin_settings() {
+function gwts_gallery_plugin_settings() {
 
 	$args = array(
 		'type' => 'string', 
@@ -132,29 +132,29 @@ function gwlts_gwl_gallery_plugin_settings() {
 		'default' => NULL,
 	);
 	/*register our settings*/
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_gallery_numberof_items', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidemargin', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_gallery_numberof_items', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidemargin', 'gwts_sanitize_posttypes');
 	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_classtoslider', $args);
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_speedslider', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_speedslider', 'gwts_sanitize_posttypes');
 	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slideinterval', $numargs);
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidermode', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_allow_looping', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_navigation', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_menuoption', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slidermode', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_allow_looping', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_navigation', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_menuoption', 'gwts_sanitize_posttypes');
 	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_numberof_thumbitems', $numargs);
 	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_sliderwidth', $numargs);
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_pagination', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_switcher', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_effect', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_thumb_size', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_caption', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_alt_txt', 'gwlts_gwl_sanitize_posttypes');
-	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_download', 'gwlts_gwl_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_pagination', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_switcher', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_effect', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_slider_thumb_size', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_caption', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_enable_alt_txt', 'gwts_sanitize_posttypes');
+	register_setting('gwlts-gwl-gallery-settings-group', 'gwts_gwl_lightbx_download', 'gwts_sanitize_posttypes');
 }
 
 
 // Sanitization callback function
-function gwlts_gwl_sanitize_posttypes( $input ) {
+function gwts_sanitize_posttypes( $input ) {
     // Sanitize the input (assuming it's an array of post types)
     if ( is_array( $input ) ) {
         return array_map( 'sanitize_text_field', $input ); // Sanitize each item in the array
@@ -402,10 +402,9 @@ function gwts_gwl_frontend_enqueue_script()
 	wp_enqueue_script('gwts-gwl-cdngal', GWTS_GWL_PLUGINURL . 'includes/js/picturefill.min.js', array('jquery'), $script_version, true); 
 	wp_enqueue_script('gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL . 'includes/js/jquery.mousewheel.min.js', array('jquery'), $script_version, true); 
 	wp_enqueue_script('gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL . 'includes/js/lightgallery-all.min.js', array('jquery', 'gwts-gwl-mousewheel'), $script_version, true); 
-	
-
+	wp_enqueue_script('gwts-gwl-dompurify', GWTS_GWL_PLUGINURL . 'includes/js/dompurify.min.js', array(), '3.1.6', true);
+	wp_enqueue_script('gwts-gwl-lightgallery-sanitize', GWTS_GWL_PLUGINURL . 'includes/js/gwts-lightgallery-sanitize.js', array('jquery', 'gwts-gwl-dompurify', 'gwts-gwl-lightgallry'), $script_version, true);
 	wp_enqueue_script('gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL . 'includes/js/gwts.zoom.min.js', array('jquery'), $script_version, true);
-	
 }
 add_action('wp_enqueue_scripts', 'gwts_gwl_frontend_enqueue_script');
 

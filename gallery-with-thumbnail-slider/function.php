@@ -94,11 +94,13 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					 		$attchimg = wp_get_attachment_image_src($imgvalue,'full');
 					 		$thumbnailimg = wp_get_attachment_image_src($imgvalue, $thumbsize);
 					 		$image_alt = get_post_meta($imgvalue, '_wp_attachment_image_alt', true);
+							$decoded_alt = ! empty( $image_alt ) ? wp_specialchars_decode( $image_alt, ENT_QUOTES ) : '';
+							$sanitized_alt = sanitize_text_field( $decoded_alt );
 					 		$image_cap = get_post($imgvalue)->post_excerpt;
 					 	?>
 
 					 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>" class="<?php if(!empty($simagezoom)){ echo esc_attr('zoom'); }?>"> 
-              	<img src="<?php echo esc_url($attchimg[0]); ?>" alt="<?php echo esc_attr($image_alt);?>" />
+              	<img src="<?php echo esc_url($attchimg[0]); ?>" alt="<?php echo esc_attr( $sanitized_alt ); ?>" />
               		<?php if($scaption == 'true' && !empty($image_cap)): ?>
               			<p><?php echo esc_html($image_cap);?></p>
               		<?php endif; ?>
