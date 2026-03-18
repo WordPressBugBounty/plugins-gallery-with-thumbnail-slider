@@ -20,7 +20,7 @@ ul.lSGallery li.active {
 }
 .lSSlideOuter .lSPager.lSGallery li {
     display: inline-block;
-    float: none !important;
+    float: left !important;
     margin: 0;
     flex: 0 0 auto;
 }
