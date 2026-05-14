@@ -325,6 +325,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 						if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                             galleryElement.lightGallery({
                                 download: setting_download,
+                                galleryId: <?php echo absint( $postid ); ?>,
                                 selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
                             });
 						}
@@ -419,6 +420,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 								if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                                     galleryElement.lightGallery({
                                         download: setting_download,
+                                        galleryId: <?php echo absint( $postid ); ?>,
                                         selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
                                     });
 								}

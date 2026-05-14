@@ -284,6 +284,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 											if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
 												galleryElement.lightGallery({
 													download: setting_download,
+													galleryId: <?php echo absint( $postid ); ?>,
 													selector: '#gwts-gwl-img-gallery li'
 												});
 											}
@@ -352,6 +353,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 										if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
 											galleryElement.lightGallery({
 												download: setting_download,
+												galleryId: <?php echo absint( $postid ); ?>,
 												selector: jQuery('#gwts-gwl-img-gallery li')
 											});
 										}
