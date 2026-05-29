@@ -57,7 +57,7 @@ function gwts_gwl_gallery_display_callback( $post ) {
 	<?php } } ?>
 	</div>
 	<hr>
-	<div class="showshrotcode"><h4><?php esc_html_e('Use this shortcode to display gallery slider.', 'gallery-with-thumbnail-slider'); ?></h4>[gwts_gwl_gallery_slider id="<?php echo esc_html($post->ID, 'gallery-with-thumbnail-slider'); ?>"]</div>
+	<div class="showshrotcode"><h4><?php esc_html_e('Use this shortcode to display gallery slider.', 'gallery-with-thumbnail-slider'); ?></h4>[gwts_gwl_gallery_slider id="<?php echo esc_attr( $post->ID ); ?>"]</div>
 	<?php if($getpostyp != 'gwts-gallery'){ ?>
 		<div class="switchslider">
 			<h4>

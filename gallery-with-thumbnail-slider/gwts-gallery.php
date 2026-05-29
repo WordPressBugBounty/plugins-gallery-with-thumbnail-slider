@@ -4,8 +4,8 @@
 * Plugin URI: https://wordpress.org/plugins/gallery-with-thumbnail-slider
 * Author: Galaxy Weblinks
 * Author URI: http://galaxyweblinks.com
-* Version: 8.2
-* Tested up to: 6.9
+* Version: 8.3
+* Tested up to: 7.0
 * Text Domain: gallery-with-thumbnail-slider
 * License:GPL2
 */
@@ -70,8 +70,7 @@ function gwts_gallery_options_plugin_settings(){
 }
 function gwts_gwl_slider_option_fuction(){
 
-	$settings_updated = filter_input(INPUT_GET, 'settings-updated', FILTER_SANITIZE_STRING);
-    if ( $settings_updated ) {
+	if ( gwts_gwl_admin_settings_updated() ) {
         echo '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Settings saved.</strong></p></div>';
 	}
 	?>
@@ -165,8 +164,7 @@ function gwts_sanitize_posttypes( $input ) {
 /* Sub Menu Setting Callback function */
 function gwts_gwl_gallery_option_fuction(){ 
 
-	$settings_updated = filter_input(INPUT_GET, 'settings-updated', FILTER_SANITIZE_STRING);
-    if ( $settings_updated ) {
+	if ( gwts_gwl_admin_settings_updated() ) {
         echo '<div id="setting-error-settings_updated" class="updated settings-error"><p><strong>Settings updated.</strong></p></div>';
 	}
 
@@ -392,6 +390,10 @@ add_action('admin_enqueue_scripts', 'gwts_gwl_gallery_enqueue_script');
 /* enqueue script for front end */
 function gwts_gwl_frontend_enqueue_script()
 {
+	if ( ! gwts_gwl_should_enqueue_frontend_assets() ) {
+		return;
+	}
+
 	$script_version = gmdate('Ymd');
 	
 	wp_enqueue_style('gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL . 'includes/css/lightslider.css', array(), $script_version);

@@ -3,6 +3,83 @@ if ( ! defined( 'ABSPATH' ) ) {
   exit; // Exit if accessed directly
 }
 
+/**
+ * Whether an options screen reported a successful save.
+ *
+ * Uses the settings-updated query arg set by options.php after a nonce-verified save.
+ *
+ * @return bool
+ */
+function gwts_gwl_admin_settings_updated() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return false;
+	}
+
+	$updated = filter_input( INPUT_GET, 'settings-updated', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+	return is_string( $updated ) && '' !== $updated;
+}
+
+/**
+ * Attachment caption (media excerpt) or empty string.
+ *
+ * @param int|string $attachment_id Attachment post ID.
+ * @return string
+ */
+function gwts_gwl_get_attachment_caption( $attachment_id ) {
+	$attachment = get_post( (int) $attachment_id );
+	if ( ! $attachment || 'attachment' !== $attachment->post_type ) {
+		return '';
+	}
+	return $attachment->post_excerpt;
+}
+
+/**
+ * Placeholder thumbnail when a gallery has no featured image.
+ *
+ * @return string
+ */
+function gwts_gwl_get_placeholder_thumbnail_url() {
+	$plugin_image = GWTS_GWL_PLUGINPATH . 'includes/images/thumbnail.png';
+	if ( file_exists( $plugin_image ) ) {
+		return GWTS_GWL_PLUGINURL . 'includes/images/thumbnail.png';
+	}
+	return includes_url( 'images/media/default.svg' );
+}
+
+/**
+ * Whether front-end slider assets should load on the current request.
+ *
+ * @return bool
+ */
+function gwts_gwl_should_enqueue_frontend_assets() {
+	if ( is_admin() ) {
+		return false;
+	}
+
+	global $post;
+	if ( ! $post instanceof WP_Post ) {
+		return false;
+	}
+
+	if ( has_shortcode( $post->post_content, 'gwts_gwl_gallery_slider' ) || has_shortcode( $post->post_content, 'gwts_gwl_galleries_listing' ) ) {
+		return true;
+	}
+
+	$post_types = get_option( 'gwts_gwl_posttypes' );
+	if ( ! is_array( $post_types ) ) {
+		$post_types = array();
+	}
+	$post_types[] = 'gwts-gallery';
+
+	if ( in_array( $post->post_type, $post_types, true ) && 'true' !== get_post_meta( $post->ID, 'gwts_gwl_switcher', true ) ) {
+		$images = get_post_meta( $post->ID, '_gwts_gwl_attachment_id', true );
+		return ! empty( $images ) && is_array( $images );
+	}
+
+	return false;
+}
+
 function gwts_gwl_shortcode_gallery_slider($postid){
 	$outputgal = '';
 	if(!empty($postid)){
@@ -83,10 +160,10 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					}
 			?>
 
-		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_html($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_html($sliderPadding, 'gallery-with-thumbnail-slider'); ?>;">            
-	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php echo esc_html($smaxwidth, 'gallery-with-thumbnail-slider'); ?>px;"<?php } ?>>
+		 	<div class="item" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_attr( $sliderbgcolor ); ?>;<?php } ?>padding: <?php echo esc_attr( $sliderPadding ); ?>;">            
+	      <div class="clearfix" <?php if(!empty($smaxwidth)){ ?>style="max-width:<?php echo esc_attr( $smaxwidth ); ?>px;"<?php } ?>>
 
-	        <ul id="gwts-gwl-img-gallery<?php echo esc_html($postid, 'gallery-with-thumbnail-slider'); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
+	        <ul id="gwts-gwl-img-gallery<?php echo esc_attr( $postid ); ?>" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_attr( $itemscls ); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
 				    <?php
 					$scaption = get_option('gwts_gwl_enable_caption');
 						foreach ($getimag as $imgvalue) {
@@ -96,7 +173,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 					 		$image_alt = get_post_meta($imgvalue, '_wp_attachment_image_alt', true);
 							$decoded_alt = ! empty( $image_alt ) ? wp_specialchars_decode( $image_alt, ENT_QUOTES ) : '';
 							$sanitized_alt = sanitize_text_field( $decoded_alt );
-					 		$image_cap = get_post($imgvalue)->post_excerpt;
+					 		$image_cap = gwts_gwl_get_attachment_caption( $imgvalue );
 					 	?>
 
 					 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>" class="<?php if(!empty($simagezoom)){ echo esc_attr('zoom'); }?>"> 
@@ -270,30 +347,30 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 						var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
             var count  = 0
               if (count === 1) return;
-              jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('cS-hidden');
-                jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').lightSlider({
+              jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').addClass('cS-hidden');
+                jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').lightSlider({
                   gallery:true,
 				  <?php if($seffect == 'fade'): ?>
-					mode: '<?php echo esc_attr($seffect, 'gallery-with-thumbnail-slider'); ?>',
+					mode: '<?php echo esc_attr($seffect); ?>',
 				   <?php endif; ?>	                        
-	              speed:<?php echo esc_attr($sliderspd, 'gallery-with-thumbnail-slider');?>,
-                  auto:<?php echo esc_attr($smode, 'gallery-with-thumbnail-slider');?>,
+	              speed:<?php echo esc_attr($sliderspd);?>,
+                  auto:<?php echo esc_attr($smode);?>,
                   item: 1,
-							    loop: <?php echo esc_attr($sloop, 'gallery-with-thumbnail-slider');?>,
-							    thumbItem: <?php echo esc_attr($maxThumbItm, 'gallery-with-thumbnail-slider'); ?>,
+							    loop: <?php echo esc_attr($sloop);?>,
+							    thumbItem: <?php echo esc_attr($maxThumbItm); ?>,
 							    vertical: true,
-							    verticalHeight:<?php echo esc_attr($sliderHeight, 'gallery-with-thumbnail-slider'); ?>,
-							    vThumbWidth:<?php echo esc_attr($thumbnlWidth, 'gallery-with-thumbnail-slider'); ?>,
+							    verticalHeight:<?php echo esc_attr($sliderHeight); ?>,
+							    vThumbWidth:<?php echo esc_attr($thumbnlWidth); ?>,
 							    thumbMargin:4,
-							    controls:<?php echo esc_attr($contrlNav, 'gallery-with-thumbnail-slider'); ?>,//navigation
+							    controls:<?php echo esc_attr($contrlNav); ?>,//navigation
 							    responsive : [
 			            {
 		                breakpoint:800,
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight800, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb800, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight800); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb800); ?>,
 	                  }
 			            },
 			            {
@@ -301,8 +378,8 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight641, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb641, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight641); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb641); ?>,
 	                  }
 			            },
 			            {
@@ -310,23 +387,23 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight480, 'gallery-with-thumbnail-slider'); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb480, 'gallery-with-thumbnail-slider'); ?>,
+	                    verticalHeight:<?php echo esc_attr($vheight480); ?>,
+	                    thumbItem:<?php echo esc_attr($vthumb480); ?>,
 	                  }
 			            },						           
 			        	],
 
                 onSliderLoad: function(obj) {
-                	jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
-	                var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
+                	jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').removeClass('cS-hidden');
+	                var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').attr("data-litebx");
 					if(lithbox=='true'){
-						var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>');
+						var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>');
 						var galleryItems = galleryElement.find('.lslide');
 						if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                             galleryElement.lightGallery({
                                 download: setting_download,
                                 galleryId: <?php echo absint( $postid ); ?>,
-                                selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
+                                selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?> li'
                             });
 						}
 					}            
@@ -363,7 +440,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		    		if (typeof lightGallery !== 'undefined' && !jQuery.fn.lightGallery) {
 		    			jQuery.fn.lightGallery = lightGallery;
 		    		}
-					var setting_download = '<?php echo esc_attr($lboxdownload, ); ?>';
+					var setting_download = '<?php echo esc_attr( $lboxdownload ); ?>';
 		        jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').lightSlider({
               item:<?php echo esc_attr($gallitms);?>,		                
               slideMargin:<?php echo esc_attr($getmargin);?>,
@@ -410,18 +487,18 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 	        			slideEndAnimation: true,
 	        			swipeThreshold: 40,        			
 		              	onSliderLoad: function(el) {
-							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').removeClass('cS-hidden');
-							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').addClass('gwts-loaded');
+							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').removeClass('cS-hidden');
+							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').addClass('gwts-loaded');
 							
-							var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>').attr("data-litebx");
+							var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').attr("data-litebx");
 							if(lithbox=='true'){
-								var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?>');
+								var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>');
 								var galleryItems = galleryElement.find('.lslide');
 								if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                                     galleryElement.lightGallery({
                                         download: setting_download,
                                         galleryId: <?php echo absint( $postid ); ?>,
-                                        selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid, 'gallery-with-thumbnail-slider'); ?> li'
+                                        selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?> li'
                                     });
 								}
 							}	
@@ -468,7 +545,7 @@ function gwts_gwl_shortcode_display_gallery_list($no_of_items){
 			else { ?>
 				<li>
     			<a class="gwts-gwl-thumbrig-cell" href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" target="_blank">
-    				<img class="gwts-gwl-thumbrig-img" src="<?php echo esc_url(GWTS_GWL_PLUGINURL.'includes/images/thumbnail.png'); ?>" alt="img"/>
+    				<img class="gwts-gwl-thumbrig-img" src="<?php echo esc_url( gwts_gwl_get_placeholder_thumbnail_url() ); ?>" alt="<?php echo esc_attr( get_the_title() ); ?>"/>
             	<span class="gwts-gwl-thumbrig-overlay"></span>
             	<span class="gwts-gwl-thumbrig-text"><?php the_title_attribute(); ?></span>
             </a>

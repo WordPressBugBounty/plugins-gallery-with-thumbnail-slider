@@ -83,12 +83,12 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 					}
 
 					?>
-				 	<div class="item gwts-gwl-prev-gallery-items" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_attr($sliderbgcolor, 'gallery-with-thumbnail-slider'); ?>;<?php } ?>padding: <?php echo esc_attr($sliderPadding); ?>;">
-			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php echo esc_attr($smaxwidth, 'gallery-with-thumbnail-slider') ?>px;" <?php } ?>>
+				 	<div class="item gwts-gwl-prev-gallery-items" style="<?php if(!empty($sliderbgcolor)){ ?>background-color:<?php echo esc_attr( $sliderbgcolor ); ?>;<?php } ?>padding: <?php echo esc_attr( $sliderPadding ); ?>;">
+			        	<div class="clearfix" <?php if(!empty($smaxwidth)){ ?> style="max-width:<?php echo esc_attr( $smaxwidth ); ?>px;" <?php } ?>>
 				 			
 				 		<?php $lboxswitchr = get_option('gwts_gwl_lightbx_switcher'); ?>
 
-			        	<ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_html($itemscls, 'gallery-with-thumbnail-slider'); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
+			        	<ul id="gwts-gwl-img-gallery" class="gwts-gwl-slidergal list-unstyled cS-hidden <?php echo esc_attr( $itemscls ); ?>" data-litebx="<?php if(!empty($lboxswitchr)){ echo esc_attr($lboxswitchr); }else{ echo "false"; }?>">
 						   	
 						   	<?php
 							   $scaption = get_option('gwts_gwl_enable_caption');
@@ -99,7 +99,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 							 		$image_alt = get_post_meta($imgvalue, '_wp_attachment_image_alt', true);
 									$decoded_alt = ! empty( $image_alt ) ? wp_specialchars_decode( $image_alt, ENT_QUOTES ) : '';
 									$sanitized_alt = sanitize_text_field( $decoded_alt );
-									$image_cap = get_post($imgvalue)->post_excerpt;
+									$image_cap = gwts_gwl_get_attachment_caption( $imgvalue );
 								?>
 							 		<li data-thumb="<?php echo esc_url($thumbnailimg[0]); ?>" data-responsive="<?php echo esc_url($thumbnailimg[0]); ?>" data-src="<?php echo esc_url($attchimg[0]); ?>" class="<?php if(!empty($simagezoom)){ echo esc_attr('zoom'); }?>"> 
 				                      <img src="<?php echo esc_attr($attchimg[0]); ?>" alt="<?php echo esc_attr( $sanitized_alt ); ?>"/>
