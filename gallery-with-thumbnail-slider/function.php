@@ -48,6 +48,21 @@ function gwts_gwl_get_placeholder_thumbnail_url() {
 }
 
 /**
+ * Whether a string contains a GWTS gallery shortcode.
+ *
+ * @param string $content Content to search.
+ * @return bool
+ */
+function gwts_gwl_string_has_gallery_shortcode( $content ) {
+	if ( ! is_string( $content ) || '' === $content ) {
+		return false;
+	}
+
+	return false !== strpos( $content, '[gwts_gwl_gallery_slider' )
+		|| false !== strpos( $content, '[gwts_gwl_galleries_listing' );
+}
+
+/**
  * Whether front-end slider assets should load on the current request.
  *
  * @return bool
@@ -66,6 +81,15 @@ function gwts_gwl_should_enqueue_frontend_assets() {
 		return true;
 	}
 
+	if ( gwts_gwl_string_has_gallery_shortcode( $post->post_content ) ) {
+		return true;
+	}
+
+	$elementor_data = get_post_meta( $post->ID, '_elementor_data', true );
+	if ( gwts_gwl_string_has_gallery_shortcode( $elementor_data ) ) {
+		return true;
+	}
+
 	$post_types = get_option( 'gwts_gwl_posttypes' );
 	if ( ! is_array( $post_types ) ) {
 		$post_types = array();
@@ -78,6 +102,54 @@ function gwts_gwl_should_enqueue_frontend_assets() {
 	}
 
 	return false;
+}
+
+/**
+ * Enqueue front-end slider scripts and styles.
+ *
+ * Safe to call multiple times or after wp_enqueue_scripts (before wp_footer).
+ *
+ * @return void
+ */
+function gwts_gwl_enqueue_frontend_assets() {
+	static $enqueued = false;
+
+	if ( $enqueued || is_admin() ) {
+		return;
+	}
+
+	$enqueued = true;
+	$script_version = gmdate( 'Ymd' );
+
+	wp_enqueue_style( 'gwts-gwl-lightslider-css', GWTS_GWL_PLUGINURL . 'includes/css/lightslider.css', array(), $script_version );
+	wp_enqueue_style( 'gwts-gwl-style-css', GWTS_GWL_PLUGINURL . 'includes/css/gwts-style.css', array(), $script_version );
+	wp_enqueue_style( 'gwts-gwl-lightgal-css', GWTS_GWL_PLUGINURL . 'includes/css/lightgallery.css', array(), $script_version );
+
+	wp_enqueue_script( 'gwts-gwl-lightslider', GWTS_GWL_PLUGINURL . 'includes/js/lightslider.js', array( 'jquery' ), $script_version, true );
+	wp_enqueue_script( 'gwts-gwl-cdngal', GWTS_GWL_PLUGINURL . 'includes/js/picturefill.min.js', array( 'jquery' ), $script_version, true );
+	wp_enqueue_script( 'gwts-gwl-mousewheel', GWTS_GWL_PLUGINURL . 'includes/js/jquery.mousewheel.min.js', array( 'jquery' ), $script_version, true );
+	wp_enqueue_script( 'gwts-gwl-lightgallry', GWTS_GWL_PLUGINURL . 'includes/js/lightgallery-all.min.js', array( 'jquery', 'gwts-gwl-mousewheel' ), $script_version, true );
+	wp_enqueue_script( 'gwts-gwl-dompurify', GWTS_GWL_PLUGINURL . 'includes/js/dompurify.min.js', array(), '3.1.6', true );
+	wp_enqueue_script( 'gwts-gwl-lightgallery-sanitize', GWTS_GWL_PLUGINURL . 'includes/js/gwts-lightgallery-sanitize.js', array( 'jquery', 'gwts-gwl-dompurify', 'gwts-gwl-lightgallry' ), $script_version, true );
+	wp_enqueue_script( 'gwts-gwl-zoom.min', GWTS_GWL_PLUGINURL . 'includes/js/gwts.zoom.min.js', array( 'jquery' ), $script_version, true );
+}
+
+/**
+ * Queue gallery initialization to run after plugin scripts load in the footer.
+ *
+ * @param string $javascript    Raw JS without script tags.
+ * @param string $script_handle Script handle to attach inline script to.
+ * @return void
+ */
+function gwts_gwl_add_slider_init_script( $javascript, $script_handle = 'gwts-gwl-lightslider' ) {
+	gwts_gwl_enqueue_frontend_assets();
+	wp_enqueue_script( $script_handle );
+
+	if ( 'gwts-gwl-lightslider' === $script_handle ) {
+		$javascript = "var gwtsGwlRunSliderInit=function(){if(typeof jQuery.fn.lightSlider!=='function'){setTimeout(gwtsGwlRunSliderInit,50);return;}" . $javascript . "};gwtsGwlRunSliderInit();";
+	}
+
+	wp_add_inline_script( $script_handle, $javascript, 'after' );
 }
 
 function gwts_gwl_shortcode_gallery_slider($postid){
@@ -114,6 +186,7 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		}
 	 
 		if(!empty($getimag) && is_array($getimag)){ 
+			gwts_gwl_enqueue_frontend_assets();
 			ob_start();
 				
 			if((null == $hidetitle && empty($hidetitle) && !empty($getttl)) || ((null == $hidedescription) && empty($hidedescription) && !empty($getdescription))) { ?>
@@ -208,13 +281,14 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 			
 
 			<?php if(null !== $simagezoom && !empty($simagezoom)){ ?>
-
-			<script>
-				jQuery(function() {
+			<?php
+			gwts_gwl_add_slider_init_script(
+				"jQuery(function() {
 				  jQuery('.zoom').zoom();
-				});
-			</script>
-
+				});",
+				'gwts-gwl-zoom.min'
+			);
+			?>
 			<?php	} 
 
 				$gallitms = get_option('gwts_gwl_gallery_numberof_items');
@@ -338,39 +412,39 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		
 	</style>
 
-				<script>
-					jQuery(document).ready(function() {
-						// Ensure lightGallery is available on jQuery
+				<?php
+				$vertical_slider_js = "jQuery(document).ready(function() {
 						if (typeof lightGallery !== 'undefined' && !jQuery.fn.lightGallery) {
 							jQuery.fn.lightGallery = lightGallery;
 						}
-						var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
-            var count  = 0
+						var setting_download = '" . esc_js( (string) $lboxdownload ) . "';
+            var count  = 0;
               if (count === 1) return;
-              jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').addClass('cS-hidden');
-                jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').lightSlider({
-                  gallery:true,
-				  <?php if($seffect == 'fade'): ?>
-					mode: '<?php echo esc_attr($seffect); ?>',
-				   <?php endif; ?>	                        
-	              speed:<?php echo esc_attr($sliderspd);?>,
-                  auto:<?php echo esc_attr($smode);?>,
+              jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').addClass('cS-hidden');
+                jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').lightSlider({
+                  gallery:true,";
+				if ( 'fade' === $seffect ) {
+					$vertical_slider_js .= "mode: 'fade',";
+				}
+				$vertical_slider_js .= "
+	              speed:" . (int) $sliderspd . ",
+                  auto:" . esc_js( (string) $smode ) . ",
                   item: 1,
-							    loop: <?php echo esc_attr($sloop);?>,
-							    thumbItem: <?php echo esc_attr($maxThumbItm); ?>,
+							    loop: " . esc_js( (string) $sloop ) . ",
+							    thumbItem: " . (int) $maxThumbItm . ",
 							    vertical: true,
-							    verticalHeight:<?php echo esc_attr($sliderHeight); ?>,
-							    vThumbWidth:<?php echo esc_attr($thumbnlWidth); ?>,
+							    verticalHeight:" . (int) $sliderHeight . ",
+							    vThumbWidth:" . (int) $thumbnlWidth . ",
 							    thumbMargin:4,
-							    controls:<?php echo esc_attr($contrlNav); ?>,//navigation
+							    controls:" . esc_js( (string) $contrlNav ) . ",
 							    responsive : [
 			            {
 		                breakpoint:800,
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight800); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb800); ?>,
+	                    verticalHeight:" . (int) $vheight800 . ",
+	                    thumbItem:" . (int) $vthumb800 . ",
 	                  }
 			            },
 			            {
@@ -378,8 +452,8 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight641); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb641); ?>,
+	                    verticalHeight:" . (int) $vheight641 . ",
+	                    thumbItem:" . (int) $vthumb641 . ",
 	                  }
 			            },
 			            {
@@ -387,31 +461,31 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 		                settings: {
 	                    item:1,
 	                    slideMove:1,
-	                    verticalHeight:<?php echo esc_attr($vheight480); ?>,
-	                    thumbItem:<?php echo esc_attr($vthumb480); ?>,
+	                    verticalHeight:" . (int) $vheight480 . ",
+	                    thumbItem:" . (int) $vthumb480 . ",
 	                  }
-			            },						           
+			            }
 			        	],
-
                 onSliderLoad: function(obj) {
-                	jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').removeClass('cS-hidden');
-	                var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').attr("data-litebx");
+                	jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').removeClass('cS-hidden');
+	                var lithbox = jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').attr('data-litebx');
 					if(lithbox=='true'){
-						var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>');
+						var galleryElement = jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "');
 						var galleryItems = galleryElement.find('.lslide');
 						if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                             galleryElement.lightGallery({
                                 download: setting_download,
-                                galleryId: <?php echo absint( $postid ); ?>,
-                                selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?> li'
+                                galleryId: " . absint( $postid ) . ",
+                                selector: '#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . " li'
                             });
 						}
-					}            
-                } 
+					}
+                }
               });
             count++;
-          });
-	      </script>
+          });";
+				gwts_gwl_add_slider_init_script( $vertical_slider_js );
+				?>
 				<?php } else {
 				$sthumbalign = get_post_meta($postid, '_gwtsslider_alignment', true);
 				if($sthumbalign == 'center'){
@@ -434,29 +508,28 @@ function gwts_gwl_shortcode_gallery_slider($postid){
 				<?php 
 				}
 				?>
-				<script>
-		    	jQuery(document).ready(function() {
-		    		// Ensure lightGallery is available on jQuery
+				<?php
+				$horizontal_slider_js = "jQuery(document).ready(function() {
 		    		if (typeof lightGallery !== 'undefined' && !jQuery.fn.lightGallery) {
 		    			jQuery.fn.lightGallery = lightGallery;
 		    		}
-					var setting_download = '<?php echo esc_attr( $lboxdownload ); ?>';
-		        jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').lightSlider({
-              item:<?php echo esc_attr($gallitms);?>,		                
-              slideMargin:<?php echo esc_attr($getmargin);?>,
-              addClass:'<?php echo esc_attr($addclss);?>',
-              speed:<?php echo esc_attr($sliderspd);?>,
-              pause:<?php echo esc_attr($spause);?>,
-              auto:<?php echo esc_attr($smode);?>,
-              loop:<?php echo esc_attr($sloop);?>,
-              pager:<?php echo esc_attr($spager);?>,
-              gallery:<?php echo esc_attr($sgallery);?>,
-              thumbItem:<?php echo esc_attr($sthumbitem);?>,
-	    	  controls:<?php echo esc_attr($s_nav);?>,
-	    	   <?php if($seffect == 'fade'): ?>
-								mode: '<?php echo esc_attr($seffect); ?>',
-							<?php endif; ?>
-							
+					var setting_download = '" . esc_js( (string) $lboxdownload ) . "';
+		        jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').lightSlider({
+              item:" . (int) $gallitms . ",
+              slideMargin:" . (int) $getmargin . ",
+              addClass:'" . esc_js( (string) $addclss ) . "',
+              speed:" . (int) $sliderspd . ",
+              pause:" . (int) $spause . ",
+              auto:" . esc_js( (string) $smode ) . ",
+              loop:" . esc_js( (string) $sloop ) . ",
+              pager:" . esc_js( (string) $spager ) . ",
+              gallery:" . esc_js( (string) $sgallery ) . ",
+              thumbItem:" . (int) $sthumbitem . ",
+	    	  controls:" . esc_js( (string) $s_nav ) . ",";
+				if ( 'fade' === $seffect ) {
+					$horizontal_slider_js .= "mode: 'fade',";
+				}
+				$horizontal_slider_js .= "
 	    				responsive : [
 		            {
 	                breakpoint:800,
@@ -478,39 +551,42 @@ function gwts_gwl_shortcode_gallery_slider($postid){
                     item:1,
                     slideMove:1,
                   }
-		            },						           
+		            }
 						  ],
 	    					useCSS: true,
 	        			cssEasing: 'ease',
 	        			easing: 'linear',
 	        			keyPress: false,
 	        			slideEndAnimation: true,
-	        			swipeThreshold: 40,        			
+	        			swipeThreshold: 40,
 		              	onSliderLoad: function(el) {
-							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').removeClass('cS-hidden');
-							jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').addClass('gwts-loaded');
-							
-							var lithbox = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>').attr("data-litebx");
+							jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').removeClass('cS-hidden');
+							jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').addClass('gwts-loaded');
+							var lithbox = jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "').attr('data-litebx');
 							if(lithbox=='true'){
-								var galleryElement = jQuery('#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?>');
+								var galleryElement = jQuery('#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . "');
 								var galleryItems = galleryElement.find('.lslide');
 								if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
                                     galleryElement.lightGallery({
                                         download: setting_download,
-                                        galleryId: <?php echo absint( $postid ); ?>,
-                                        selector: '#gwts-gwl-img-gallery<?php echo esc_attr($postid); ?> li'
+                                        galleryId: " . absint( $postid ) . ",
+                                        selector: '#gwts-gwl-img-gallery" . esc_js( (string) $postid ) . " li'
                                     });
 								}
-							}	
-		              	}  
-			        });
-					});
-		    	<?php if($smode != 'false'){ ?>
-						var interval = setTimeout(function() {
-						document.querySelector('.lSSlideOuter > ul > li:nth-child(2)').click();
-						}, 3000);
-					<?php } ?>
-			</script>
+							}
+		              	}
+			        });";
+				if ( 'false' !== $smode ) {
+					$horizontal_slider_js .= "
+						setTimeout(function() {
+						var autoplaySlide = document.querySelector('.lSSlideOuter > ul > li:nth-child(2)');
+						if (autoplaySlide) { autoplaySlide.click(); }
+						}, 3000);";
+				}
+				$horizontal_slider_js .= "
+					});";
+				gwts_gwl_add_slider_init_script( $horizontal_slider_js );
+				?>
 		 <?php }
 		 $outputgal = ob_get_clean();			 
 		}		

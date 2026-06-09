@@ -107,12 +107,16 @@ function gwts_gwl_gallery_save_meta_box( $post_id ) {
 		}else{
 			update_post_meta($post_id, '_gwts_gwl_attachment_id', '');
 		}
+
+		if ( get_post_type( $post_id ) !== 'gwts-gallery' ) {
+			if ( isset( $_REQUEST['gwts_gwl_switcher'] ) && ! empty( $_REQUEST['gwts_gwl_switcher'] ) ) {
+				update_post_meta( $post_id, 'gwts_gwl_switcher', 'true' );
+			} else {
+				delete_post_meta( $post_id, 'gwts_gwl_switcher' );
+			}
+		}
     
   	} 
   	
-	if( isset($_REQUEST['gwts_gwl_switcher']) && !empty($_REQUEST['gwts_gwl_switcher']) ){
-		update_post_meta($post_id,'gwts_gwl_switcher', sanitize_text_field( wp_unslash($_REQUEST['gwts_gwl_switcher']) ));
-	}	
-	
 }
 add_action( 'save_post', 'gwts_gwl_gallery_save_meta_box' );

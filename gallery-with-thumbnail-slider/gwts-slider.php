@@ -31,7 +31,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 	if(empty($lboxdownload)){
 		$lboxdownload = false;
 	}
-	
+
 	if($_switchslider != 'true'){
 		if(!empty($getpostopt)){
 			if(in_array($getpostyp, $getpostopt)){
@@ -41,6 +41,7 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 			 	$getdescription = get_post_meta($postid, '_gwts_gallery_desc', true);
 
 				if(!empty($getimag) && is_array($getimag)){ 
+					//gwts_gwl_enqueue_frontend_assets();
 					ob_start(); 
 					if(!empty($getttl) || !empty($getdescription)) {?>
 					<div class="gwts-gwl-prev-gallery">
@@ -222,38 +223,37 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 							$vthumb800 = !empty($sliderBreakpoints) ? $sliderBreakpoints[5] : '6';
 							?>
 
-							<script>
-							jQuery(document).ready(function() {
-								// Ensure lightGallery is available on jQuery
+							<?php
+							gwts_gwl_add_slider_init_script(
+								"jQuery(document).ready(function() {
 								if (typeof lightGallery !== 'undefined' && !jQuery.fn.lightGallery) {
 									jQuery.fn.lightGallery = lightGallery;
 								}
-								var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
-								var count  = 0
+								var setting_download = '" . esc_js( (string) $lboxdownload ) . "';
+								var count  = 0;
 								if (count === 1) return;
-                  				
 								jQuery('#gwts-gwl-img-gallery').addClass('cS-hidden');
-                  				jQuery('#gwts-gwl-img-gallery').lightSlider({	
-									gallery:true,	                        
-									speed:<?php echo esc_attr($sliderspd);?>,
-									pause:<?php echo esc_attr($spause);?>,
-									auto:<?php echo esc_attr($smode);?>,
+                  				jQuery('#gwts-gwl-img-gallery').lightSlider({
+									gallery:true,
+									speed:" . (int) $sliderspd . ",
+									pause:" . (int) $spause . ",
+									auto:" . esc_js( (string) $smode ) . ",
 									item: 1,
-									loop: <?php echo esc_attr($sloop);?>,
-									thumbItem: <?php echo esc_attr($maxThumbItm); ?>,
+									loop: " . esc_js( (string) $sloop ) . ",
+									thumbItem: " . (int) $maxThumbItm . ",
 									vertical: true,
-									verticalHeight:<?php echo esc_attr($sliderHeight); ?>,
-									vThumbWidth:<?php echo esc_attr($thumbnlWidth); ?>,
+									verticalHeight:" . (int) $sliderHeight . ",
+									vThumbWidth:" . (int) $thumbnlWidth . ",
 									thumbMargin:4,
-									controls:<?php echo esc_attr($contrlNav); ?>,
+									controls:" . esc_js( (string) $contrlNav ) . ",
 									responsive : [
 										{
 											breakpoint:800,
 											settings: {
 												item:1,
 												slideMove:1,
-												verticalHeight:<?php echo esc_attr($vheight800); ?>,
-												thumbItem:<?php echo esc_attr($vthumb800); ?>,
+												verticalHeight:" . (int) $vheight800 . ",
+												thumbItem:" . (int) $vthumb800 . ",
 											}
 										},
 										{
@@ -261,70 +261,73 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 											settings: {
 												item:1,
 												slideMove:1,
-												verticalHeight:<?php echo esc_attr($vheight641); ?>,
-												thumbItem:<?php echo esc_attr($vthumb641); ?>,
+												verticalHeight:" . (int) $vheight641 . ",
+												thumbItem:" . (int) $vthumb641 . ",
 											}
 										},
-											{
+										{
 											breakpoint:480,
 											settings: {
 												item:1,
 												slideMove:1,
-												verticalHeight:<?php echo esc_attr($vheight480); ?>,
-												thumbItem:<?php echo esc_attr($vthumb480); ?>,
+												verticalHeight:" . (int) $vheight480 . ",
+												thumbItem:" . (int) $vthumb480 . ",
 											}
-										},								            
+										}
 				        			],
 									onSliderLoad: function(obj) {
 										jQuery('#gwts-gwl-img-gallery').removeClass('cS-hidden');
-										var lithbox = jQuery('#gwts-gwl-img-gallery').attr("data-litebx");
+										var lithbox = jQuery('#gwts-gwl-img-gallery').attr('data-litebx');
 										if(lithbox=='true'){
 											var galleryElement = jQuery('#gwts-gwl-img-gallery');
 											var galleryItems = galleryElement.find('.lslide');
 											if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
 												galleryElement.lightGallery({
 													download: setting_download,
-													galleryId: <?php echo absint( $postid ); ?>,
+													galleryId: " . absint( $postid ) . ",
 													selector: '#gwts-gwl-img-gallery li'
 												});
 											}
-										}            
-									} 
+										}
+									}
                   				});
 								count++;
-				        	});
-				      		</script>
-				      		
+				        	});"
+							);
+							?>
+
 				      		<?php if(null !== $simagezoom && !empty($simagezoom)){ ?>
-							<script>
-								jQuery(function() {
+							<?php
+							gwts_gwl_add_slider_init_script(
+								"jQuery(function() {
 									jQuery('#gwts-gwl-img-gallery .zoom').zoom();
-								});
-							</script>
+								});",
+								'gwts-gwl-zoom.min'
+							);
+							?>
 							<?php } ?>
 				      		
 						<?php } else { ?>
 
-						<script>
-						jQuery(document).ready(function() {
-							// Ensure lightGallery is available on jQuery
+						<?php
+						gwts_gwl_add_slider_init_script(
+							"jQuery(document).ready(function() {
 							if (typeof lightGallery !== 'undefined' && !jQuery.fn.lightGallery) {
 								jQuery.fn.lightGallery = lightGallery;
 							}
-							var setting_download = '<?php echo esc_attr($lboxdownload); ?>';
-
-							jQuery('#gwts-gwl-img-gallery').lightSlider({		                
-							item:<?php echo esc_attr($gallitms);?>,
-							slideMargin:<?php echo esc_attr($getmargin);?>,
-							addClass:'<?php echo esc_attr($addclss);?>',
-							speed:<?php echo esc_attr($sliderspd);?>,
-							pause:<?php echo esc_attr($spause);?>,
-							auto:<?php echo esc_attr($smode);?>,
-							loop:<?php echo esc_attr($sloop);?>,
-							pager:<?php echo esc_attr($spager);?>,
-							gallery:<?php echo esc_attr($sgallery);?>,
-							thumbItem:<?php echo esc_attr($sthumbitem);?>,			 
-							controls:<?php echo esc_attr($s_nav);?>,
+							var setting_download = '" . esc_js( (string) $lboxdownload ) . "';
+							jQuery('#gwts-gwl-img-gallery').lightSlider({
+							item:" . (int) $gallitms . ",
+							slideMargin:" . (int) $getmargin . ",
+							addClass:'" . esc_js( (string) $addclss ) . "',
+							speed:" . (int) $sliderspd . ",
+							pause:" . (int) $spause . ",
+							auto:" . esc_js( (string) $smode ) . ",
+							loop:" . esc_js( (string) $sloop ) . ",
+							pager:" . esc_js( (string) $spager ) . ",
+							gallery:" . esc_js( (string) $sgallery ) . ",
+							thumbItem:" . (int) $sthumbitem . ",
+							controls:" . esc_js( (string) $s_nav ) . ",
 							useCSS: true,
 							cssEasing: 'ease',
 							easing: 'linear',
@@ -334,41 +337,43 @@ function gwts_gwl_filter_the_content_in_the_main_loop( $content ) {
 							onSliderLoad: function(el) {
 								jQuery('#gwts-gwl-img-gallery').removeClass('cS-hidden');
 								jQuery('#gwts-gwl-img-gallery').addClass('gwts-loaded');
-									var maxHeight = 0,
-									container = jQuery(el),
-									children = container.children();
-									children.each(function () {
-										var childHeight = jQuery(this).height();
-										
-										if (childHeight > maxHeight) {
-											maxHeight = childHeight;
-										}
-									});
-									container.height(maxHeight);
-									var lithbox = jQuery('#gwts-gwl-img-gallery').attr("data-litebx");
-						
-									if(lithbox=='true'){
-										var galleryElement = jQuery('#gwts-gwl-img-gallery');
-										var galleryItems = galleryElement.find('.lslide');
-										if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
-											galleryElement.lightGallery({
-												download: setting_download,
-												galleryId: <?php echo absint( $postid ); ?>,
-												selector: jQuery('#gwts-gwl-img-gallery li')
-											});
-										}
+								var maxHeight = 0,
+								container = jQuery(el),
+								children = container.children();
+								children.each(function () {
+									var childHeight = jQuery(this).height();
+									if (childHeight > maxHeight) {
+										maxHeight = childHeight;
 									}
-							}, 
+								});
+								container.height(maxHeight);
+								var lithbox = jQuery('#gwts-gwl-img-gallery').attr('data-litebx');
+								if(lithbox=='true'){
+									var galleryElement = jQuery('#gwts-gwl-img-gallery');
+									var galleryItems = galleryElement.find('.lslide');
+									if(galleryElement.length > 0 && galleryItems.length > 0 && typeof jQuery.fn.lightGallery !== 'undefined'){
+										galleryElement.lightGallery({
+											download: setting_download,
+											galleryId: " . absint( $postid ) . ",
+											selector: jQuery('#gwts-gwl-img-gallery li')
+										});
+									}
+								}
+							}
 						});
-					});
-				  	</script>
-				  	
+					});"
+						);
+						?>
+
 				  	<?php if(null !== $simagezoom && !empty($simagezoom)){ ?>
-					<script>
-						jQuery(function() {
+					<?php
+					gwts_gwl_add_slider_init_script(
+						"jQuery(function() {
 							jQuery('#gwts-gwl-img-gallery .zoom').zoom();
-						});
-					</script>
+						});",
+						'gwts-gwl-zoom.min'
+					);
+					?>
 					<?php } ?>
 				  	
 				 	<?php }

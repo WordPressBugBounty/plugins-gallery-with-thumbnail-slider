@@ -6,7 +6,7 @@ Tags: gallery, slider, thumbnail, vertical slider
 Requires at least: 6.8 or higher
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 8.3
+Stable tag: 8.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ We can manage thumb items and vertical size in different breakpoints for respons
 
 
 == Changelog ==
+
+= 8.3.1 =
+– Fixed galleries stacking when lightSlider failed to load. Scripts now enqueue when a gallery renders, and slider initialization runs after lightSlider loads in the footer.
 
 = 8.3 =
 – WordPress 7.0 compatibility: tested up to 7.0, settings checks, attachment caption guards, corrected escaping, conditional front-end assets, placeholder image fallback.
@@ -194,6 +197,9 @@ Release with lightbox gallery option
 First Stable Release
 
 == Upgrade Notice ==
+
+= 8.3.1 =
+– Fixed galleries stacking when lightSlider failed to load. Scripts now enqueue when a gallery renders, and slider initialization runs after lightSlider loads in the footer.
 
 = 8.3 =
 – WordPress 7.0 compatibility: tested up to 7.0, settings checks, attachment caption guards, corrected escaping, conditional front-end assets, placeholder image fallback.
